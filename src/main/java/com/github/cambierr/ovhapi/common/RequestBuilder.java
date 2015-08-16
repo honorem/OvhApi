@@ -38,7 +38,7 @@ public class RequestBuilder {
     private final String path;
     private final Method method;
     private String body;
-    private static final String userAgent = "Java " + System.getProperty("java.version") + " | com.shareif.ovhapi wrapper (https://github.com/cambierr/RxJavaOvhApi)";
+    private static final String userAgent = "Java " + System.getProperty("java.version") + " | com.shareif.ovhapi wrapper (https://github.com/cambierr/OvhApi)";
     private final Credential credentials;
     private final String applicationKey;
 

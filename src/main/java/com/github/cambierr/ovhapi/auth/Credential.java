@@ -21,10 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.shareif.ovhapi.auth;
+package com.github.cambierr.ovhapi.auth;
 
-import com.shareif.ovhapi.exception.InvalidConsumerKeyException;
-import com.shareif.ovhapi.exception.UnclaimedConsumerKeyException;
+import com.github.cambierr.ovhapi.exception.InvalidConsumerKeyException;
+import com.github.cambierr.ovhapi.exception.UnclaimedConsumerKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import javax.net.ssl.HttpsURLConnection;

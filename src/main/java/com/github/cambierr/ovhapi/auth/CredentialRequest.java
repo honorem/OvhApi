@@ -21,14 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.shareif.ovhapi.auth;
+package com.github.cambierr.ovhapi.auth;
 
-import com.shareif.ovhapi.cloud.Region;
-import com.shareif.ovhapi.common.Method;
-import com.shareif.ovhapi.common.RequestBuilder;
-import com.shareif.ovhapi.common.Response;
-import com.shareif.ovhapi.exception.RequestException;
-import com.shareif.ovhapi.exception.TokenNotLinkedException;
+import com.github.cambierr.ovhapi.cloud.Region;
+import com.github.cambierr.ovhapi.common.Method;
+import com.github.cambierr.ovhapi.common.RequestBuilder;
+import com.github.cambierr.ovhapi.common.Response;
+import com.github.cambierr.ovhapi.exception.RequestException;
+import com.github.cambierr.ovhapi.exception.TokenNotLinkedException;
 import java.io.IOException;
 import org.json.JSONArray;
 import org.json.JSONObject;

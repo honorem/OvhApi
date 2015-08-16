@@ -21,9 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.shareif.ovhapi.auth;
+package com.github.cambierr.ovhapi.auth;
 
-import com.shareif.ovhapi.common.Method;
+import com.github.cambierr.ovhapi.common.Method;
 import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONArray;

@@ -21,13 +21,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.shareif.ovhapi.cloud;
+package com.github.cambierr.ovhapi.cloud;
 
-import com.shareif.ovhapi.auth.Credential;
-import com.shareif.ovhapi.common.Method;
-import com.shareif.ovhapi.common.RequestBuilder;
-import com.shareif.ovhapi.common.Response;
-import com.shareif.ovhapi.exception.RequestException;
+import com.github.cambierr.ovhapi.auth.Credential;
+import com.github.cambierr.ovhapi.common.Method;
+import com.github.cambierr.ovhapi.common.RequestBuilder;
+import com.github.cambierr.ovhapi.common.Response;
+import com.github.cambierr.ovhapi.exception.RequestException;
 import java.io.IOException;
 import org.json.JSONArray;
 import rx.Observable;

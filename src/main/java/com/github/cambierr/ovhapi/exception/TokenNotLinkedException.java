@@ -21,27 +21,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.shareif.ovhapi.common;
+package com.github.cambierr.ovhapi.exception;
 
 /**
  *
  * @author cambierr
  */
-public class Header {
-    
-    private final String key;
-    private final String value;
-    
-    public Header(String _key, String _value){
-        key = _key;
-        value = _value;
+public class TokenNotLinkedException extends Exception {
+
+    /**
+     * Creates a new instance of <code>NotLinkedTokenException</code> without detail message.
+     */
+    public TokenNotLinkedException() {
     }
-    
-    public String getKey(){
-        return key;
-    }
-    
-    public String getValue(){
-        return value;
+
+    /**
+     * Constructs an instance of <code>NotLinkedTokenException</code> with the specified detail message.
+     *
+     * @param msg the detail message.
+     */
+    public TokenNotLinkedException(String msg) {
+        super(msg);
     }
 }

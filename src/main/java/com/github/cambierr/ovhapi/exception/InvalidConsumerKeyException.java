@@ -21,26 +21,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.shareif.ovhapi.exception;
+package com.github.cambierr.ovhapi.exception;
 
 /**
  *
  * @author cambierr
  */
-public class UnclaimedConsumerKeyException extends Exception {
+public class InvalidConsumerKeyException extends Exception {
 
     /**
-     * Creates a new instance of <code>UnclaimedConsumerKeyException</code> without detail message.
+     * Creates a new instance of <code>InvalidConsumerKeyException</code> without detail message.
      */
-    public UnclaimedConsumerKeyException() {
+    public InvalidConsumerKeyException() {
     }
 
     /**
-     * Constructs an instance of <code>UnclaimedConsumerKeyException</code> with the specified detail message.
+     * Constructs an instance of <code>InvalidConsumerKeyException</code> with the specified detail message.
      *
      * @param msg the detail message.
      */
-    public UnclaimedConsumerKeyException(String msg) {
+    public InvalidConsumerKeyException(String msg) {
         super(msg);
     }
 }

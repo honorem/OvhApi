@@ -21,9 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.shareif.ovhapi.common;
+package com.github.cambierr.ovhapi.common;
 
-import com.shareif.ovhapi.auth.Credential;
+import com.github.cambierr.ovhapi.auth.Credential;
 import javax.net.ssl.HttpsURLConnection;
 import rx.Observable;
 import rx.Subscriber;

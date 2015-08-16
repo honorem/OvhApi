@@ -21,26 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.shareif.ovhapi.exception;
+package com.github.cambierr.ovhapi.exception;
 
 /**
  *
  * @author cambierr
  */
-public class TokenNotLinkedException extends Exception {
-
-    /**
-     * Creates a new instance of <code>NotLinkedTokenException</code> without detail message.
-     */
-    public TokenNotLinkedException() {
-    }
-
-    /**
-     * Constructs an instance of <code>NotLinkedTokenException</code> with the specified detail message.
-     *
-     * @param msg the detail message.
-     */
-    public TokenNotLinkedException(String msg) {
-        super(msg);
-    }
+public class WrongMethodException {
+    
 }

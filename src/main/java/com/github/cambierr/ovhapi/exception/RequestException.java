@@ -21,26 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.shareif.ovhapi.exception;
+package com.github.cambierr.ovhapi.exception;
 
 /**
  *
  * @author cambierr
  */
-public class InvalidConsumerKeyException extends Exception {
+public class RequestException extends Exception {
 
-    /**
-     * Creates a new instance of <code>InvalidConsumerKeyException</code> without detail message.
-     */
-    public InvalidConsumerKeyException() {
+    private final int code;
+    private final String message;
+    private final String body;
+    
+    public RequestException(int _code, String _message, String _body){
+        super(_message);
+        code = _code;
+        body = _body;
+        message = _message;
     }
-
-    /**
-     * Constructs an instance of <code>InvalidConsumerKeyException</code> with the specified detail message.
-     *
-     * @param msg the detail message.
-     */
-    public InvalidConsumerKeyException(String msg) {
-        super(msg);
+    
+    public int code(){
+        return code;
+    }
+    
+    public String message(){
+        return message;
+    }
+    
+    public String body(){
+        return body;
     }
 }

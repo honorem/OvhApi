@@ -1,2 +1,2 @@
 # OvhApi
-RxJava Ovh Api wrapper
+RxJava Ovh Api wrapper... soon

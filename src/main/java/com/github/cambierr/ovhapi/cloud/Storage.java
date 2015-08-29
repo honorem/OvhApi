@@ -23,8 +23,6 @@
  */
 package com.github.cambierr.ovhapi.cloud;
 
-import static com.github.cambierr.ovhapi.cloud.Image.byId;
-import static com.github.cambierr.ovhapi.cloud.Instance.byId;
 import com.github.cambierr.ovhapi.common.Method;
 import com.github.cambierr.ovhapi.common.RequestBuilder;
 import com.github.cambierr.ovhapi.common.Response;
@@ -86,9 +84,9 @@ public class Storage {
                     }
                 });
     }
-    
+
     public static Observable<Storage> byId(Project _project, String _id) {
-        return new RequestBuilder("/cloud/project/" + _project.getId() + "/storage/"+_id, Method.GET, _project.getCredentials())
+        return new RequestBuilder("/cloud/project/" + _project.getId() + "/storage/" + _id, Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
                     try {
@@ -125,14 +123,14 @@ public class Storage {
     }
 
     public String getStaticUrl() {
-        if(partial){
+        if (partial) {
             throw new PartialObjectException();
         }
         return staticUrl;
     }
 
     public boolean isPublic() {
-        if(partial){
+        if (partial) {
             throw new PartialObjectException();
         }
         return isPublic;
@@ -141,8 +139,8 @@ public class Storage {
     public boolean isPartial() {
         return partial;
     }
-    
-    public Observable<Storage> update(){
+
+    public Observable<Storage> update() {
         return byId(project, id)
                 .map((Storage t1) -> {
                     this.isPublic = t1.isPublic;
@@ -154,11 +152,45 @@ public class Storage {
                     return this;
                 });
     }
-    
+
     public Observable<Storage> complete() {
         if (!partial) {
             return Observable.just(this);
         }
         return update();
+    }
+
+    public Observable<Storage> delete() {
+        return new RequestBuilder("/cloud/project/" + project.getId() + "/storage/" + id, Method.DELETE, project.getCredentials())
+                .build()
+                .flatMap((Response t1) -> {
+                    try {
+                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
+                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.entity()));
+                        }
+                        return Observable.just(this);
+                    } catch (IOException ex) {
+                        return Observable.error(ex);
+                    }
+                });
+    }
+    
+    public Observable<Storage> cors(String _cors) {
+        return new RequestBuilder("/cloud/project/" + project.getId() + "/storage/"+id+"/cors", Method.POST, project.getCredentials())
+                .body(new JSONObject()
+                        .put("origin", _cors)
+                        .toString()
+                )
+                .build()
+                .flatMap((Response t1) -> {
+                    try {
+                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
+                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.entity()));
+                        }
+                        return Observable.just(this);
+                    } catch (IOException ex) {
+                        return Observable.error(ex);
+                    }
+                });
     }
 }

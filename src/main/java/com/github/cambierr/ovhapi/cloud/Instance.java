@@ -162,4 +162,19 @@ public class Instance {
         SHELVED,
         SHELVED_OFFLOADED
     }
+    
+    public Observable<Instance> kill(){
+        return new RequestBuilder("/cloud/project/" + project.getId() + "/instance/"+id, Method.DELETE, project.getCredentials())
+                .build()
+                .flatMap((Response t1) -> {
+                    try {
+                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
+                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.entity()));
+                        }
+                        return Observable.just(this);
+                        } catch (IOException ex) {
+                        return Observable.error(ex);
+                    }
+                });
+    }
 }

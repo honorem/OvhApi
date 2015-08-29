@@ -23,6 +23,7 @@
  */
 package com.github.cambierr.ovhapi.cloud;
 
+import static com.github.cambierr.ovhapi.cloud.Image.byId;
 import com.github.cambierr.ovhapi.common.Method;
 import com.github.cambierr.ovhapi.common.OvhApi;
 import com.github.cambierr.ovhapi.common.RequestBuilder;
@@ -43,9 +44,9 @@ public class Instance {
     private Status status;
     private final Region region;
     private String name;
-    private final Image image;
+    private Image image;
     private final long creationDate;
-    private final Flavor flavor;
+    private Flavor flavor;
     private final SshKey sshKey;
     private final String id;
 
@@ -162,6 +163,11 @@ public class Instance {
         SHELVED,
         SHELVED_OFFLOADED
     }
+    
+    public enum RebootType{
+        soft,
+        hard
+    }
 
     public Observable<Instance> kill() {
         return new RequestBuilder("/cloud/project/" + project.getId() + "/instance/" + id, Method.DELETE, project.getCredentials())
@@ -201,4 +207,101 @@ public class Instance {
                     }
                 });
     }
+    
+    public Observable<Instance> resize(Flavor _flavor) {
+        return new RequestBuilder("/cloud/project/" + project.getId() + "/instance/"+id+"/resize", Method.POST, project.getCredentials())
+                .body(new JSONObject()
+                        .put("flavorId", _flavor.getId())
+                        .toString()
+                )
+                .build()
+                .flatMap((Response t1) -> {
+                    try {
+                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
+                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.entity()));
+                        }
+                        final JSONObject instance = t1.jsonObject();
+                        this.flavor = _flavor;
+                        this.status = Status.valueOf(instance.getString("status"));
+                        return Observable.just(this);
+                    } catch (IOException ex) {
+                        return Observable.error(ex);
+                    }
+                });
+    }
+    
+    public Observable<Instance> reinstall(Image _image) {
+        return new RequestBuilder("/cloud/project/" + project.getId() + "/instance/"+id+"/reinstall", Method.POST, project.getCredentials())
+                .body(new JSONObject()
+                        .put("imageId", _image.getId())
+                        .toString()
+                )
+                .build()
+                .flatMap((Response t1) -> {
+                    try {
+                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
+                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.entity()));
+                        }
+                        final JSONObject instance = t1.jsonObject();
+                        this.image = _image;
+                        this.status = Status.valueOf(instance.getString("status"));
+                        return Observable.just(this);
+                    } catch (IOException ex) {
+                        return Observable.error(ex);
+                    }
+                });
+    }
+    
+    public Observable<Instance> rename(String _name) {
+        return new RequestBuilder("/cloud/project/" + project.getId() + "/instance/"+id, Method.PUT, project.getCredentials())
+                .body(new JSONObject()
+                        .put("instanceName", _name)
+                        .toString()
+                )
+                .build()
+                .flatMap((Response t1) -> {
+                    try {
+                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
+                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.entity()));
+                        }
+                        final JSONObject instance = t1.jsonObject();
+                        this.name = _name;
+                        return Observable.just(this);
+                    } catch (IOException ex) {
+                        return Observable.error(ex);
+                    }
+                });
+    }
+    
+    public Observable<Instance> update(){
+        return byId(project, id)
+                .map((Instance t1) -> {
+                    this.flavor = t1.flavor;
+                    this.image = t1.image;
+                    this.name = t1.name;
+                    this.status = t1.status;
+                    return this;
+                });
+    }
+    
+    public Observable<Instance> reboot(RebootType _reboot) {
+        return new RequestBuilder("/cloud/project/" + project.getId() + "/instance/"+id+"/reboot", Method.POST, project.getCredentials())
+                .body(new JSONObject()
+                        .put("type", _reboot.name())
+                        .toString()
+                )
+                .build()
+                .flatMap((Response t1) -> {
+                    try {
+                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
+                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.entity()));
+                        }
+                        this.status = Status.REBOOT;
+                        return Observable.just(this);
+                    } catch (IOException ex) {
+                        return Observable.error(ex);
+                    }
+                });
+    }
+    
 }

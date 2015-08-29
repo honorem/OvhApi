@@ -86,9 +86,9 @@ public class Instance {
                     }
                 });
     }
-    
+
     public static Observable<Instance> byId(Project _project, String _id) {
-        return new RequestBuilder("/cloud/project/" + _project.getId() + "/instance/"+_id, Method.GET, _project.getCredentials())
+        return new RequestBuilder("/cloud/project/" + _project.getId() + "/instance/" + _id, Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
                     try {
@@ -162,9 +162,9 @@ public class Instance {
         SHELVED,
         SHELVED_OFFLOADED
     }
-    
-    public Observable<Instance> kill(){
-        return new RequestBuilder("/cloud/project/" + project.getId() + "/instance/"+id, Method.DELETE, project.getCredentials())
+
+    public Observable<Instance> kill() {
+        return new RequestBuilder("/cloud/project/" + project.getId() + "/instance/" + id, Method.DELETE, project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
                     try {
@@ -172,7 +172,31 @@ public class Instance {
                             return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.entity()));
                         }
                         return Observable.just(this);
-                        } catch (IOException ex) {
+                    } catch (IOException ex) {
+                        return Observable.error(ex);
+                    }
+                });
+    }
+
+    public static Observable<Instance> create(Project _project, Flavor _flavor, Image _image, Region _region, SshKey _key, String _name) {
+        return new RequestBuilder("/cloud/project/" + _project.getId() + "/instance", Method.POST, _project.getCredentials())
+                .body(new JSONObject()
+                        .put("flavorId", _flavor.getId())
+                        .put("imageId", _image.getId())
+                        .put("name", _name)
+                        .put("region", _region.getName())
+                        .put("sshKeyId", (_key == null) ? "" : _key.getId())
+                        .toString()
+                )
+                .build()
+                .flatMap((Response t1) -> {
+                    try {
+                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
+                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.entity()));
+                        }
+                        final JSONObject instance = t1.jsonObject();
+                        return Observable.just(new Instance(_project, Status.valueOf(instance.getString("status")), Region.byName(_project, instance.getString("region")), instance.getString("name"), Image.byId(_project, instance.getString("imageId"), Region.byName(_project, instance.getString("region"))), OvhApi.dateToTime(instance.getString("created")), Flavor.byId(_project, instance.getString("flavorId"), Region.byName(_project, instance.getString("region"))), SshKey.byIdPartial(_project, instance.getString("sshKeyId")), instance.getString("id")));
+                    } catch (IOException | ParseException ex) {
                         return Observable.error(ex);
                     }
                 });

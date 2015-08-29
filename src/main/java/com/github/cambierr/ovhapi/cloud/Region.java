@@ -40,20 +40,19 @@ public class Region {
 
     private final String name;
 
-    private Region(String _name) {
+    private final Project project;
+    
+    private Region(Project _project, String _name) {
         this.name = _name;
+        project = _project;
     }
 
-    protected static Region byName(String _name) {
-        return new Region(_name);
+    protected static Region byName(Project _project, String _name) {
+        return new Region(_project, _name);
     }
 
-    public static Observable<Region> byProject(Credential _credentials, Project _project) {
-        return byProject(_credentials, _project.getId());
-    }
-
-    public static Observable<Region> byProject(Credential _credentials, String _project) {
-        return new RequestBuilder("/cloud/project/" + _project + "/region", Method.GET, _credentials)
+    public static Observable<Region> byProject(Project _project) {
+        return new RequestBuilder("/cloud/project/" + _project + "/region", Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
                     try {
@@ -62,7 +61,7 @@ public class Region {
                         }
                         final JSONArray regions = t1.jsonArray();
                         return Observable.range(0, regions.length())
-                        .map((Integer t2) -> new Region(regions.getString(t2)));
+                        .map((Integer t2) -> new Region(_project, regions.getString(t2)));
 
                     } catch (IOException ex) {
                         return Observable.error(ex);

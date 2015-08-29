@@ -23,11 +23,11 @@
  */
 package com.github.cambierr.ovhapi.cloud;
 
-import com.github.cambierr.ovhapi.auth.Credential;
 import com.github.cambierr.ovhapi.common.Method;
 import com.github.cambierr.ovhapi.common.OvhApi;
 import com.github.cambierr.ovhapi.common.RequestBuilder;
 import com.github.cambierr.ovhapi.common.Response;
+import com.github.cambierr.ovhapi.exception.PartialObjectException;
 import com.github.cambierr.ovhapi.exception.RequestException;
 import java.io.IOException;
 import java.text.ParseException;
@@ -42,19 +42,19 @@ import rx.Subscriber;
  */
 public class Image {
 
-    private final String visibility;
-    private final long creationDate;
-    private final String status;
+    private String visibility;
+    private long creationDate;
+    private String status;
     private final Region region;
-    private final String name;
-    private final String type;
+    private String name;
+    private String type;
     private final String id;
-    private final int minDisk;
+    private int minDisk;
 
-    private final Credential credentials;
+    private boolean partial = false;
+    private final Project project;
 
-    private Image(Credential _credentials, String _id, String _visibility, long _creationDate, String _status, Region _region, String _name, String _type, int _minDisk) {
-        credentials = _credentials;
+    private Image(Project _project, String _id, String _visibility, long _creationDate, String _status, Region _region, String _name, String _type, int _minDisk) {
         visibility = _visibility;
         creationDate = _creationDate;
         status = _status;
@@ -63,49 +63,49 @@ public class Image {
         type = _type;
         id = _id;
         minDisk = _minDisk;
+        project = _project;
+    }
+    
+    protected static Image byId(Project _project, String _id, Region _region){
+        Image temp = new Image(_project, _id, null, -1, null, _region, null, null, -1);
+        temp.partial = true;
+        return temp;
+    }
+    
+    public Observable<Image> complete() {
+        if (!partial) {
+            return Observable.just(this);
+        }
+
+        return byId(project, id)
+                .map((Image t1) -> {
+                    this.creationDate = t1.creationDate;
+                    this.status = t1.status;
+                    this.name = t1.name;
+                    this.type = t1.type;
+                    this.minDisk = t1.minDisk;
+                    this.partial = false;
+                    return this;
+                });
     }
 
-    public static Observable<Image> list(Credential _credentials, Project _project) {
-        return list(_credentials, _project.getId(), null, null, null);
+    public boolean isPartial() {
+        return partial;
     }
 
-    public static Observable<Image> list(Credential _credentials, String _project) {
-        return list(_credentials, _project, null, null, null);
-    }
-
-    public static Observable<Image> list(Credential _credentials, Project _project, Region _region) {
-        return list(_credentials, _project.getId(), _region.getName(), null, null);
-    }
-
-    public static Observable<Image> list(Credential _credentials, Project _project, String _region) {
-        return list(_credentials, _project.getId(), _region, null, null);
-    }
-
-    public static Observable<Image> list(Credential _credentials, Project _project, Region _region, String _flavor) {
-        return list(_credentials, _project.getId(), _region.getName(), _flavor, null);
-    }
-
-    public static Observable<Image> list(Credential _credentials, Project _project, Region _region, Flavor _flavor) {
-        return list(_credentials, _project.getId(), _region.getName(), _flavor.getOsType(), null);
-    }
-
-    public static Observable<Image> list(Credential _credentials, Project _project, Region _region, Flavor _flavor, String _osType) {
-        return list(_credentials, _project.getId(), _region.getName(), _flavor.getType(), _osType);
-    }
-
-    public static Observable<Image> list(Credential _credentials, String _project, String _region, String _flavor, String _osType) {
+    public static Observable<Image> list(Project _project, Region _region, Flavor _flavor, String _osType) {
         String args = "";
         if (_region != null) {
-            args += "region=" + _region + "&";
+            args += "region=" + _region.getName() + "&";
         }
         if (_flavor != null) {
-            args += "flavorType=" + _flavor + "&";
+            args += "flavorType=" + _flavor.getId() + "&";
         }
         if (_osType != null) {
             args += "osType=" + _osType + "&";
         }
 
-        return new RequestBuilder("/cloud/project/" + _project + "/image?" + args, Method.GET, _credentials)
+        return new RequestBuilder("/cloud/project/" + _project.getId() + "/image?" + args, Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
                     try {
@@ -117,12 +117,12 @@ public class Image {
                         .range(0, images.length())
                         .flatMap((Integer t2) -> Observable.create((Subscriber<? super Image> t3) -> {
                             try {
-                                Image image = new Image(_credentials,
+                                Image image = new Image(_project,
                                         images.getJSONObject(t2).getString("id"),
                                         images.getJSONObject(t2).getString("visibility"),
                                         OvhApi.dateToTime(images.getJSONObject(t2).getString("creationDate")),
                                         images.getJSONObject(t2).getString("status"),
-                                        Region.byName(images.getJSONObject(t2).getString("region")),
+                                        Region.byName(_project, images.getJSONObject(t2).getString("region")),
                                         images.getJSONObject(t2).getString("name"),
                                         images.getJSONObject(t2).getString("type"),
                                         images.getJSONObject(t2).getInt("minDisk")
@@ -140,12 +140,8 @@ public class Image {
                 });
     }
     
-    public static Observable<Image> byId(Credential _credentials, Project _project, String _id){
-        return byId(_credentials, _project.getId(), _id);
-    }
-    
-    public static Observable<Image> byId(Credential _credentials, String _project, String _id){
-        return new RequestBuilder("/cloud/project/" + _project + "/image/" + _id, Method.GET, _credentials)
+    public static Observable<Image> byId(Project _project, String _id){
+        return new RequestBuilder("/cloud/project/" + _project + "/image/" + _id, Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
                     try {
@@ -154,12 +150,12 @@ public class Image {
                         }
                         final JSONObject image = t1.jsonObject();
                         
-                        return Observable.just(new Image(_credentials,
+                        return Observable.just(new Image(_project,
                                         image.getString("id"),
                                         image.getString("visibility"),
                                         OvhApi.dateToTime(image.getString("creationDate")),
                                         image.getString("status"),
-                                        Region.byName(image.getString("region")),
+                                        Region.byName(_project, image.getString("region")),
                                         image.getString("name"),
                                         image.getString("type"),
                                         image.getInt("minDisk")
@@ -172,14 +168,23 @@ public class Image {
     }
 
     public String getVisibility() {
+        if(partial){
+            throw new PartialObjectException();
+        }
         return visibility;
     }
 
     public long getCreationDate() {
+        if(partial){
+            throw new PartialObjectException();
+        }
         return creationDate;
     }
 
     public String getStatus() {
+        if(partial){
+            throw new PartialObjectException();
+        }
         return status;
     }
 
@@ -188,10 +193,16 @@ public class Image {
     }
 
     public String getName() {
+        if(partial){
+            throw new PartialObjectException();
+        }
         return name;
     }
 
     public String getType() {
+        if(partial){
+            throw new PartialObjectException();
+        }
         return type;
     }
 
@@ -200,6 +211,9 @@ public class Image {
     }
 
     public int getMinDisk() {
+        if(partial){
+            throw new PartialObjectException();
+        }
         return minDisk;
     }
 

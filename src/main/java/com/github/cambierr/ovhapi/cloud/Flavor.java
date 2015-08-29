@@ -23,10 +23,10 @@
  */
 package com.github.cambierr.ovhapi.cloud;
 
-import com.github.cambierr.ovhapi.auth.Credential;
 import com.github.cambierr.ovhapi.common.Method;
 import com.github.cambierr.ovhapi.common.RequestBuilder;
 import com.github.cambierr.ovhapi.common.Response;
+import com.github.cambierr.ovhapi.exception.PartialObjectException;
 import com.github.cambierr.ovhapi.exception.RequestException;
 import java.io.IOException;
 import org.json.JSONArray;
@@ -40,17 +40,18 @@ import rx.Observable;
 public class Flavor {
 
     private final String id;
-    private final int disk;
+    private int disk;
     private final Region region;
-    private final String name;
-    private final int vcpus;
-    private final String type;
-    private final String osType;
-    private final int ram;
+    private String name;
+    private int vcpus;
+    private String type;
+    private String osType;
+    private int ram;
 
-    private final Credential credentials;
+    private boolean partial = false;
+    private final Project project;
 
-    private Flavor(Credential _credentials, String _id, int _disk, Region _region, String _name, int _vcpus, String _type, String _osType, int _ram) {
+    private Flavor(Project _project, String _id, int _disk, Region _region, String _name, int _vcpus, String _type, String _osType, int _ram) {
         id = _id;
         disk = _disk;
         region = _region;
@@ -59,23 +60,39 @@ public class Flavor {
         type = _type;
         osType = _osType;
         ram = _ram;
-        credentials = _credentials;
+        project = _project;
     }
 
-    public static Observable<Flavor> list(Credential _credentials, Project _project) {
-        return list(_credentials, _project.getId(), null);
+    protected static Flavor byId(Project _project, String _id, Region _region) {
+        Flavor temp = new Flavor(_project, _id, 0, _region, null, 0, null, null, 0);
+        temp.partial = true;
+        return temp;
     }
 
-    public static Observable<Flavor> list(Credential _credentials, String _project) {
-        return list(_credentials, _project, null);
+    public Observable<Flavor> complete() {
+        if (!partial) {
+            return Observable.just(this);
+        }
+
+        return byId(project, id)
+                .map((Flavor t1) -> {
+                    this.disk = t1.disk;
+                    this.name = t1.name;
+                    this.vcpus = t1.vcpus;
+                    this.type = t1.type;
+                    this.osType = t1.osType;
+                    this.ram = t1.ram;
+                    this.partial = false;
+                    return this;
+                });
     }
 
-    public static Observable<Flavor> list(Credential _credentials, Project _project, Region _region) {
-        return list(_credentials, _project.getId(), _region.getName());
+    public boolean isPartial() {
+        return partial;
     }
 
-    public static Observable<Flavor> list(Credential _credentials, String _project, String _region) {
-        return new RequestBuilder((_region == null) ? "/cloud/project/" + _project + "/flavor" : "/cloud/project/" + _project + "/flavor?region=" + _region, Method.GET, _credentials)
+    public static Observable<Flavor> list(Project _project, Region _region) {
+        return new RequestBuilder("/cloud/project/" + _project + "/flavor?region=" + _region.getName(), Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
                     try {
@@ -83,19 +100,15 @@ public class Flavor {
                             return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.entity()));
                         }
                         final JSONArray flavors = t1.jsonArray();
-                        return Observable.range(0, flavors.length()).map((Integer t2) -> new Flavor(_credentials, flavors.getJSONObject(t2).getString("id"), flavors.getJSONObject(t2).getInt("disk"), Region.byName(flavors.getJSONObject(t2).getString("region")), flavors.getJSONObject(t2).getString("name"), flavors.getJSONObject(t2).getInt("vcpus"), flavors.getJSONObject(t2).getString("type"), flavors.getJSONObject(t2).getString("osType"), flavors.getJSONObject(t2).getInt("ram")));
+                        return Observable.range(0, flavors.length()).map((Integer t2) -> new Flavor(_project, flavors.getJSONObject(t2).getString("id"), flavors.getJSONObject(t2).getInt("disk"), Region.byName(_project, flavors.getJSONObject(t2).getString("region")), flavors.getJSONObject(t2).getString("name"), flavors.getJSONObject(t2).getInt("vcpus"), flavors.getJSONObject(t2).getString("type"), flavors.getJSONObject(t2).getString("osType"), flavors.getJSONObject(t2).getInt("ram")));
                     } catch (IOException ex) {
                         return Observable.error(ex);
                     }
                 });
     }
 
-    public static Observable<Flavor> byId(Credential _credentials, Project _project, String _id) {
-        return byId(_credentials, _project.getId(), _id);
-    }
-
-    public static Observable<Flavor> byId(Credential _credentials, String _project, String _id) {
-        return new RequestBuilder("/cloud/project/" + _project + "/flavor/" + _id, Method.GET, _credentials)
+    public static Observable<Flavor> byId(Project _project, String _id) {
+        return new RequestBuilder("/cloud/project/" + _project.getId() + "/flavor/" + _id, Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
                     try {
@@ -104,9 +117,10 @@ public class Flavor {
                         }
                         JSONObject flavor = t1.jsonObject();
                         return Observable.just(
-                                new Flavor(_credentials, flavor.getString("id"),
+                                new Flavor(_project,
+                                        flavor.getString("id"),
                                         flavor.getInt("disk"),
-                                        Region.byName(flavor.getString("region")),
+                                        Region.byName(_project, flavor.getString("region")),
                                         flavor.getString("name"),
                                         flavor.getInt("vcpus"),
                                         flavor.getString("type"),
@@ -125,6 +139,9 @@ public class Flavor {
     }
 
     public int getDisk() {
+        if(partial){
+            throw new PartialObjectException();
+        }
         return disk;
     }
 
@@ -133,22 +150,37 @@ public class Flavor {
     }
 
     public String getName() {
+        if(partial){
+            throw new PartialObjectException();
+        }
         return name;
     }
 
     public int getVcpus() {
+        if(partial){
+            throw new PartialObjectException();
+        }
         return vcpus;
     }
 
     public String getType() {
+        if(partial){
+            throw new PartialObjectException();
+        }
         return type;
     }
 
     public String getOsType() {
+        if(partial){
+            throw new PartialObjectException();
+        }
         return osType;
     }
 
     public int getRam() {
+        if(partial){
+            throw new PartialObjectException();
+        }
         return ram;
     }
 

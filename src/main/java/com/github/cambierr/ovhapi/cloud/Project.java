@@ -64,6 +64,10 @@ public class Project {
     public boolean isUnleashed() {
         return unleash;
     }
+    
+    public Credential getCredentials(){
+        return credentials;
+    }
 
     public long getCreationDate() {
         return creationDate;

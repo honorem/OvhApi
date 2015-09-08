@@ -93,6 +93,6 @@ public class CredentialRequest {
         if (!isLinked()) {
             throw new TokenNotLinkedException();
         }
-        return Credential.build(applicationKey, applicationSecret, consumerKey);
+        return new Credential(applicationKey, applicationSecret, consumerKey);
     }
 }

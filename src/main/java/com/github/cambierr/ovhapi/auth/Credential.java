@@ -28,6 +28,9 @@ import com.github.cambierr.ovhapi.exception.UnclaimedConsumerKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import javax.net.ssl.HttpsURLConnection;
+import rx.Observable;
+import rx.Subscriber;
+import rx.functions.Func1;
 
 /**
  *
@@ -39,40 +42,47 @@ public class Credential {
     private final String applicationSecret;
     private final String consumerKey;
 
-    private Credential(String _applicationKey, String _applicationSecret, String _consumerKey) {
+    protected Credential(String _applicationKey, String _applicationSecret, String _consumerKey) {
         applicationKey = _applicationKey;
         applicationSecret = _applicationSecret;
         consumerKey = _consumerKey;
     }
 
-    public static Credential build(String _applicationKey, String _applicationSecret, String _consumerKey) {
-
-        
-
-        return null;
+    public static Observable<Credential> build(String _applicationKey, String _applicationSecret, String _consumerKey) {
+        return Observable
+                .just(new Credential(_applicationKey, _applicationSecret, _consumerKey))
+                .flatMap((Credential t) -> Observable.create((Subscriber<? super Credential> t1) -> {
+                    try {
+                        t.check();
+                        t1.onNext(t);
+                    } catch (UnclaimedConsumerKeyException | InvalidConsumerKeyException ex) {
+                        t1.onError(ex);
+                    }
+                    t1.onCompleted();
+                }));
     }
-    
+
     public void sign(HttpsURLConnection _link, String _body) throws NoSuchAlgorithmException {
         long time = System.currentTimeMillis() / 1000;
-        
+
         String preHash = this.applicationSecret
-                    + "+" + this.consumerKey
-                    + "+" + _link.getRequestMethod()
-                    + "+" + _link.getURL()
-                    + "+" + ((_body == null) ? "" : _body)
-                    + "+" + time;
-        
+                + "+" + this.consumerKey
+                + "+" + _link.getRequestMethod()
+                + "+" + _link.getURL()
+                + "+" + ((_body == null) ? "" : _body)
+                + "+" + time;
+
         _link.addRequestProperty("X-Ovh-Timestamp", Long.toString(time));
         _link.addRequestProperty("X-Ovh-Signature", toSHA1(preHash));
         _link.addRequestProperty("X-Ovh-Application", this.applicationKey);
         _link.addRequestProperty("X-Ovh-Consumer", this.consumerKey);
     }
-    
+
     private String toSHA1(String _preHash) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("SHA-1");
         return bytesToHex(md.digest(_preHash.getBytes()));
     }
-    
+
     private String bytesToHex(byte[] _bytes) {
         String result = "";
         for (int i = 0; i < _bytes.length; i++) {
@@ -80,10 +90,10 @@ public class Credential {
         }
         return result;
     }
-    
-    public void check() throws UnclaimedConsumerKeyException, InvalidConsumerKeyException{
+
+    public void check() throws UnclaimedConsumerKeyException, InvalidConsumerKeyException {
         /**
-         * @pending: waiting for ovh 
+         * @pending: waiting for ovh
          */
     }
 

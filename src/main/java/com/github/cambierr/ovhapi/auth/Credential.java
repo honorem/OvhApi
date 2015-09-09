@@ -96,5 +96,9 @@ public class Credential {
          * @pending: waiting for ovh
          */
     }
+    
+    public String getConsumerKey(){
+        return this.consumerKey;
+    }
 
 }

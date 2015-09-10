@@ -164,7 +164,7 @@ public class Project {
                         return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
                     }
                     JSONArray resp = t1.jsonArray();
-                    return Observable.range(1, resp.length()).map((Integer t) -> new Project(_credentials, resp.getString(t)));
+                    return Observable.range(0, resp.length()).map((Integer t) -> new Project(_credentials, resp.getString(t)));
                 });
     }
 

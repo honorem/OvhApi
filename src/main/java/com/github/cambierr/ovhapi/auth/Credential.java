@@ -73,7 +73,7 @@ public class Credential {
                 + "+" + time;
 
         _link.addRequestProperty("X-Ovh-Timestamp", Long.toString(time));
-        _link.addRequestProperty("X-Ovh-Signature", toSHA1(preHash));
+        _link.addRequestProperty("X-Ovh-Signature", "$1$"+toSHA1(preHash));
         _link.addRequestProperty("X-Ovh-Application", this.applicationKey);
         _link.addRequestProperty("X-Ovh-Consumer", this.consumerKey);
     }

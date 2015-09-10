@@ -64,11 +64,11 @@ public class Response {
     }
 
     public JSONObject jsonObject() {
-        return new JSONObject(entity());
+        return new JSONObject(body());
     }
 
     public JSONArray jsonArray() {
-        return new JSONArray(entity());
+        return new JSONArray(body());
     }
 
     public int responseCode() {

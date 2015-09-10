@@ -58,7 +58,7 @@ public class RequestBuilder {
 
     public RequestBuilder body(String _body) {
         if (!this.method.equals(Method.POST) && !this.method.equals(Method.PUT)) {
-            throw new IllegalArgumentException("Body should only be appended to POST of PUT request");
+            throw new IllegalArgumentException("Body should only be appended to POST or PUT request");
         }
         body = _body;
         return this;

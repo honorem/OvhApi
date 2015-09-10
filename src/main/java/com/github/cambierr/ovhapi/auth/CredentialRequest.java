@@ -52,16 +52,11 @@ public class CredentialRequest {
                 .body(new JSONObject().put("redirection", _redirection).put("accessRules", _rules.toJson()).toString())
                 .build()
                 .flatMap((Response t1) -> {
-                    try {
-                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.entity()));
-                        }
-                        JSONObject token = t1.jsonObject();
-
-                        return Observable.just(new CredentialRequest(_applicationKey, _applicationSecret, token.getString("consumerKey"), token.getString("validationUrl")));
-                    } catch (IOException ex) {
-                        return Observable.error(ex);
+                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
+                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
                     }
+                    JSONObject token = t1.jsonObject();
+                    return Observable.just(new CredentialRequest(_applicationKey, _applicationSecret, token.getString("consumerKey"), token.getString("validationUrl")));
                 });
     }
 
@@ -85,7 +80,7 @@ public class CredentialRequest {
          * @pending: waiting for ovh
          */
         linked = true;
-        
+
         return linked;
     }
 

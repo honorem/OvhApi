@@ -41,7 +41,7 @@ public class Region {
     private final String name;
 
     private final Project project;
-    
+
     private Region(Project _project, String _name) {
         this.name = _name;
         project = _project;
@@ -55,17 +55,12 @@ public class Region {
         return new RequestBuilder("/cloud/project/" + _project + "/region", Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
-                    try {
-                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.entity()));
-                        }
-                        final JSONArray regions = t1.jsonArray();
-                        return Observable.range(0, regions.length())
-                        .map((Integer t2) -> new Region(_project, regions.getString(t2)));
-
-                    } catch (IOException ex) {
-                        return Observable.error(ex);
+                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
+                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
                     }
+                    final JSONArray regions = t1.jsonArray();
+                    return Observable.range(0, regions.length())
+                    .map((Integer t2) -> new Region(_project, regions.getString(t2)));
                 });
 
     }

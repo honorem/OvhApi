@@ -95,15 +95,11 @@ public class Flavor {
         return new RequestBuilder("/cloud/project/" + _project + "/flavor?region=" + _region.getName(), Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
-                    try {
-                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.entity()));
-                        }
-                        final JSONArray flavors = t1.jsonArray();
-                        return Observable.range(0, flavors.length()).map((Integer t2) -> new Flavor(_project, flavors.getJSONObject(t2).getString("id"), flavors.getJSONObject(t2).getInt("disk"), Region.byName(_project, flavors.getJSONObject(t2).getString("region")), flavors.getJSONObject(t2).getString("name"), flavors.getJSONObject(t2).getInt("vcpus"), flavors.getJSONObject(t2).getString("type"), flavors.getJSONObject(t2).getString("osType"), flavors.getJSONObject(t2).getInt("ram")));
-                    } catch (IOException ex) {
-                        return Observable.error(ex);
+                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
+                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
                     }
+                    final JSONArray flavors = t1.jsonArray();
+                    return Observable.range(0, flavors.length()).map((Integer t2) -> new Flavor(_project, flavors.getJSONObject(t2).getString("id"), flavors.getJSONObject(t2).getInt("disk"), Region.byName(_project, flavors.getJSONObject(t2).getString("region")), flavors.getJSONObject(t2).getString("name"), flavors.getJSONObject(t2).getInt("vcpus"), flavors.getJSONObject(t2).getString("type"), flavors.getJSONObject(t2).getString("osType"), flavors.getJSONObject(t2).getInt("ram")));
                 });
     }
 
@@ -111,26 +107,22 @@ public class Flavor {
         return new RequestBuilder("/cloud/project/" + _project.getId() + "/flavor/" + _id, Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
-                    try {
-                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.entity()));
-                        }
-                        JSONObject flavor = t1.jsonObject();
-                        return Observable.just(
-                                new Flavor(_project,
-                                        flavor.getString("id"),
-                                        flavor.getInt("disk"),
-                                        Region.byName(_project, flavor.getString("region")),
-                                        flavor.getString("name"),
-                                        flavor.getInt("vcpus"),
-                                        flavor.getString("type"),
-                                        flavor.getString("osType"),
-                                        flavor.getInt("ram")
-                                )
-                        );
-                    } catch (IOException ex) {
-                        return Observable.error(ex);
+                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
+                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
                     }
+                    JSONObject flavor = t1.jsonObject();
+                    return Observable.just(
+                            new Flavor(_project,
+                                    flavor.getString("id"),
+                                    flavor.getInt("disk"),
+                                    Region.byName(_project, flavor.getString("region")),
+                                    flavor.getString("name"),
+                                    flavor.getInt("vcpus"),
+                                    flavor.getString("type"),
+                                    flavor.getString("osType"),
+                                    flavor.getInt("ram")
+                            )
+                    );
                 });
     }
 

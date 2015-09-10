@@ -72,21 +72,16 @@ public class SshKey {
         return new RequestBuilder("/cloud/project/" + _project.getId() + "/sshkey?" + args, Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
-                    try {
-                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.entity()));
-                        }
-                        final JSONArray keys = t1.jsonArray();
-                        return Observable
-                        .range(0, keys.length())
-                        .map((Integer t2) -> {
-                            JSONObject key = keys.getJSONObject(t2);
-                            return new SshKey(_project, key.getString("id"), Region.byName(_project, key.getJSONArray("regions").getString(0)), key.getString("name"), key.getString("publicKey"), null);
-                        });
-
-                    } catch (IOException ex) {
-                        return Observable.error(ex);
+                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
+                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
                     }
+                    final JSONArray keys = t1.jsonArray();
+                    return Observable
+                    .range(0, keys.length())
+                    .map((Integer t2) -> {
+                        JSONObject key = keys.getJSONObject(t2);
+                        return new SshKey(_project, key.getString("id"), Region.byName(_project, key.getJSONArray("regions").getString(0)), key.getString("name"), key.getString("publicKey"), null);
+                    });
                 });
     }
 
@@ -94,17 +89,11 @@ public class SshKey {
         return new RequestBuilder("/cloud/project/" + _project + "/sshkey/" + _id, Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
-                    try {
-                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.entity()));
-                        }
-                        final JSONObject key = t1.jsonObject();
-
-                        return Observable.just(new SshKey(_project, key.getString("id"), Region.byName(_project, key.getJSONArray("regions").getString(0)), key.getString("name"), key.getString("publicKey"), key.getString("fingerPrint")));
-
-                    } catch (IOException ex) {
-                        return Observable.error(ex);
+                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
+                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
                     }
+                    final JSONObject key = t1.jsonObject();
+                    return Observable.just(new SshKey(_project, key.getString("id"), Region.byName(_project, key.getJSONArray("regions").getString(0)), key.getString("name"), key.getString("publicKey"), key.getString("fingerPrint")));
                 });
     }
 

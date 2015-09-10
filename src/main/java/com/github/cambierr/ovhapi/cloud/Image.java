@@ -108,35 +108,30 @@ public class Image {
         return new RequestBuilder("/cloud/project/" + _project.getId() + "/image?" + args, Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
-                    try {
-                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.entity()));
-                        }
-                        final JSONArray images = t1.jsonArray();
-                        return Observable
-                        .range(0, images.length())
-                        .flatMap((Integer t2) -> Observable.create((Subscriber<? super Image> t3) -> {
-                            try {
-                                Image image = new Image(_project,
-                                        images.getJSONObject(t2).getString("id"),
-                                        images.getJSONObject(t2).getString("visibility"),
-                                        OvhApi.dateToTime(images.getJSONObject(t2).getString("creationDate")),
-                                        images.getJSONObject(t2).getString("status"),
-                                        Region.byName(_project, images.getJSONObject(t2).getString("region")),
-                                        images.getJSONObject(t2).getString("name"),
-                                        images.getJSONObject(t2).getString("type"),
-                                        images.getJSONObject(t2).getInt("minDisk")
-                                );
-                                t3.onNext(image);
-                            } catch (ParseException ex) {
-                                t3.onError(ex);
-                            }
-                            t3.onCompleted();
-                        }));
-
-                    } catch (IOException ex) {
-                        return Observable.error(ex);
+                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
+                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
                     }
+                    final JSONArray images = t1.jsonArray();
+                    return Observable
+                            .range(0, images.length())
+                            .flatMap((Integer t2) -> Observable.create((Subscriber<? super Image> t3) -> {
+                                try {
+                                    Image image = new Image(_project,
+                                            images.getJSONObject(t2).getString("id"),
+                                            images.getJSONObject(t2).getString("visibility"),
+                                            OvhApi.dateToTime(images.getJSONObject(t2).getString("creationDate")),
+                                            images.getJSONObject(t2).getString("status"),
+                                            Region.byName(_project, images.getJSONObject(t2).getString("region")),
+                                            images.getJSONObject(t2).getString("name"),
+                                            images.getJSONObject(t2).getString("type"),
+                                            images.getJSONObject(t2).getInt("minDisk")
+                                    );
+                                    t3.onNext(image);
+                                } catch (ParseException ex) {
+                                    t3.onError(ex);
+                                }
+                                t3.onCompleted();
+                            }));
                 });
     }
     
@@ -146,7 +141,7 @@ public class Image {
                 .flatMap((Response t1) -> {
                     try {
                         if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.entity()));
+                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
                         }
                         final JSONObject image = t1.jsonObject();
                         
@@ -161,7 +156,7 @@ public class Image {
                                         image.getInt("minDisk")
                                 ));
 
-                    } catch (IOException | ParseException ex) {
+                    } catch (ParseException ex) {
                         return Observable.error(ex);
                     }
                 });

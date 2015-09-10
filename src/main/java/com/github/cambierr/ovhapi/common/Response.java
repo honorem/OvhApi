@@ -38,46 +38,45 @@ public class Response {
     private final int status;
     private final String responseMsg;
     private final InputStream body;
-    private String entity;
+    private final byte[] entity;
 
-    protected Response(int _status, String _responseMsg, InputStream _body) {
+    protected Response(int _status, String _responseMsg, InputStream _body) throws IOException {
         status = _status;
         body = _body;
         responseMsg = _responseMsg;
-    }
 
-    public InputStream body() {
-        return body;
-    }
-
-    public String entity() throws IOException {
-        if (entity == null) {
-            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            int read;
-            byte[] data = new byte[1024];
-            while ((read = body().read(data, 0, data.length)) != -1) {
-                buffer.write(data, 0, read);
-            }
-            buffer.flush();
-            entity = new String(buffer.toByteArray());
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        int read;
+        byte[] data = new byte[1024];
+        while ((read = body.read(data, 0, data.length)) != -1) {
+            buffer.write(data, 0, read);
         }
+        buffer.flush();
+        entity = buffer.toByteArray();
+    }
+
+    public String body() {
+        return new String(entity());
+    }
+
+    public byte[] entity() {
         return entity;
     }
-    
-    public JSONObject jsonObject() throws IOException{
+
+    public JSONObject jsonObject() {
         return new JSONObject(entity());
     }
-    
-    public JSONArray jsonArray() throws IOException{
+
+    public JSONArray jsonArray() {
         return new JSONArray(entity());
     }
 
-    public int responseCode(){
+    public int responseCode() {
         return status;
     }
-    
-    public String responseMessage(){
+
+    public String responseMessage() {
         return responseMsg;
     }
-    
+
 }

@@ -65,23 +65,18 @@ public class Storage {
         return new RequestBuilder("/cloud/project/" + _project.getId() + "/storage", Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
-                    try {
-                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.entity()));
-                        }
-                        final JSONArray containers = t1.jsonArray();
-                        return Observable
-                        .range(0, containers.length())
-                        .map((Integer t2) -> {
-                            JSONObject container = containers.getJSONObject(t2);
-                            Storage temp = new Storage(_project, container.getString("id"), container.getString("name"), Region.byName(_project, container.getString("region")), container.getLong("storedBytes"), container.getLong("storedObjects"), null, false);
-                            temp.partial = true;
-                            return temp;
-                        });
-
-                    } catch (IOException ex) {
-                        return Observable.error(ex);
+                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
+                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
                     }
+                    final JSONArray containers = t1.jsonArray();
+                    return Observable
+                    .range(0, containers.length())
+                    .map((Integer t2) -> {
+                        JSONObject container = containers.getJSONObject(t2);
+                        Storage temp = new Storage(_project, container.getString("id"), container.getString("name"), Region.byName(_project, container.getString("region")), container.getLong("storedBytes"), container.getLong("storedObjects"), null, false);
+                        temp.partial = true;
+                        return temp;
+                    });
                 });
     }
 
@@ -89,16 +84,11 @@ public class Storage {
         return new RequestBuilder("/cloud/project/" + _project.getId() + "/storage/" + _id, Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
-                    try {
-                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.entity()));
-                        }
-                        final JSONObject container = t1.jsonObject();
-                        return Observable.just(new Storage(_project, container.getString("id"), container.getString("name"), Region.byName(_project, container.getString("region")), container.getLong("storedBytes"), container.getLong("storedObjects"), container.getString("staticUrl"), container.getBoolean("public")));
-
-                    } catch (IOException ex) {
-                        return Observable.error(ex);
+                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
+                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
                     }
+                    final JSONObject container = t1.jsonObject();
+                    return Observable.just(new Storage(_project, container.getString("id"), container.getString("name"), Region.byName(_project, container.getString("region")), container.getLong("storedBytes"), container.getLong("storedObjects"), container.getString("staticUrl"), container.getBoolean("public")));
                 });
     }
 
@@ -164,33 +154,25 @@ public class Storage {
         return new RequestBuilder("/cloud/project/" + project.getId() + "/storage/" + id, Method.DELETE, project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
-                    try {
-                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.entity()));
-                        }
-                        return Observable.just(this);
-                    } catch (IOException ex) {
-                        return Observable.error(ex);
+                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
+                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
                     }
+                    return Observable.just(this);
                 });
     }
-    
+
     public Observable<Storage> cors(String _cors) {
-        return new RequestBuilder("/cloud/project/" + project.getId() + "/storage/"+id+"/cors", Method.POST, project.getCredentials())
+        return new RequestBuilder("/cloud/project/" + project.getId() + "/storage/" + id + "/cors", Method.POST, project.getCredentials())
                 .body(new JSONObject()
                         .put("origin", _cors)
                         .toString()
                 )
                 .build()
                 .flatMap((Response t1) -> {
-                    try {
-                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.entity()));
-                        }
-                        return Observable.just(this);
-                    } catch (IOException ex) {
-                        return Observable.error(ex);
+                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
+                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
                     }
+                    return Observable.just(this);
                 });
     }
 }

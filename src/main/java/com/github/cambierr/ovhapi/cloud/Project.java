@@ -64,8 +64,8 @@ public class Project {
     public boolean isUnleashed() {
         return unleash;
     }
-    
-    public Credential getCredentials(){
+
+    public Credential getCredentials() {
         return credentials;
     }
 
@@ -91,7 +91,7 @@ public class Project {
                 .flatMap((Response t1) -> {
                     try {
                         if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.entity()));
+                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
                         }
                         JSONObject project = t1.jsonObject();
                         Project p = new Project(_credentials,
@@ -102,7 +102,7 @@ public class Project {
                                 project.getString("description")
                         );
                         return Observable.just(p);
-                    } catch (IOException | ParseException ex) {
+                    } catch (ParseException ex) {
                         return Observable.error(ex);
                     }
                 });
@@ -112,14 +112,10 @@ public class Project {
         return new RequestBuilder("/cloud/project", Method.GET, _credentials)
                 .build()
                 .flatMap((Response t1) -> {
-                    try {
-                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.entity()));
-                        }
-                        return Observable.from(t1.jsonObject().keySet());
-                    } catch (IOException ex) {
-                        return Observable.error(ex);
+                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
+                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
                     }
+                    return Observable.from(t1.jsonObject().keySet());
                 })
                 .flatMap((String t1) -> byId(_credentials, t1));
     }
@@ -134,14 +130,10 @@ public class Project {
                 .body(new JSONObject().put("description", _description).toString())
                 .build()
                 .flatMap((Response t1) -> {
-                    try {
-                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.entity()));
-                        }
-                        return Observable.just(_setDescription(_description));
-                    } catch (IOException ex) {
-                        return Observable.error(ex);
+                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
+                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
                     }
+                    return Observable.just(_setDescription(_description));
                 });
     }
 
@@ -157,14 +149,10 @@ public class Project {
         return new RequestBuilder("/cloud/project/" + this.id + "/unleash", Method.POST, credentials)
                 .build()
                 .flatMap((Response t1) -> {
-                    try {
-                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.entity()));
-                        }
-                        return Observable.just(_unleash());
-                    } catch (IOException ex) {
-                        return Observable.error(ex);
+                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
+                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
                     }
+                    return Observable.just(_unleash());
                 });
     }
 
@@ -180,15 +168,11 @@ public class Project {
         return new RequestBuilder("/cloud/project/" + this.id + "/balance", Method.GET, credentials)
                 .build()
                 .flatMap((Response t1) -> {
-                    try {
-                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.entity()));
-                        }
-                        JSONObject output = t1.jsonObject();
-                        return Observable.just(_setBalance(output.getDouble("currentTotal")));
-                    } catch (IOException ex) {
-                        return Observable.error(ex);
+                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
+                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
                     }
+                    JSONObject output = t1.jsonObject();
+                    return Observable.just(_setBalance(output.getDouble("currentTotal")));
                 });
     }
 
@@ -204,15 +188,11 @@ public class Project {
         new RequestBuilder("/cloud/project/" + this.id + "/consumption", Method.GET, credentials)
                 .build()
                 .flatMap((Response t1) -> {
-                    try {
-                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.entity()));
-                        }
-                        JSONObject output = t1.jsonObject();
-                        return Observable.just(_setConsumption(new Consumption(output)));
-                    } catch (IOException ex) {
-                        return Observable.error(ex);
+                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
+                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
                     }
+                    JSONObject output = t1.jsonObject();
+                    return Observable.just(_setConsumption(new Consumption(output)));
                 });
         return null;
     }
@@ -229,19 +209,20 @@ public class Project {
                 services.add(new Service(key, _json.getJSONObject(key)));
             }
             total = new Cost(_json.getJSONObject("total").getString("currencyCode"),
-                        _json.getJSONObject("total").getString("text"),
-                        _json.getJSONObject("total").getDouble("value"));
+                    _json.getJSONObject("total").getString("text"),
+                    _json.getJSONObject("total").getDouble("value"));
         }
 
         public List<Service> getServices() {
             return services;
         }
-        
+
         public Cost getTotal() {
-                return total;
-            }
+            return total;
+        }
 
         public class Service {
+
             private final String name;
             private final Cost total;
 
@@ -263,7 +244,7 @@ public class Project {
             public class Item {
 
                 public final JSONObject details;
-                
+
                 private Item(JSONObject _json) {
                     details = _json;
                 }
@@ -287,5 +268,4 @@ public class Project {
         }
     }
 
-    
 }

@@ -41,7 +41,7 @@ public class OvhApi {
     public final static String API_VERSION = "1.0";
     public final static String API_ENDPOINT = "eu.api.ovh.com";
     private static OvhApi instance = null;
-    private final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXX");
+    private final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
 
     private OvhApi() {
         System.setProperty("https.protocols", "TLSv1");

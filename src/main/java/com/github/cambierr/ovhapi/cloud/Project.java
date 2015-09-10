@@ -32,9 +32,13 @@ import com.github.cambierr.ovhapi.common.Response;
 import com.github.cambierr.ovhapi.exception.PartialObjectException;
 import com.github.cambierr.ovhapi.exception.RequestException;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import rx.Observable;
@@ -233,7 +237,18 @@ public class Project {
         if (_cached && consumption != null) {
             return Observable.just(consumption);
         }
-        new RequestBuilder("/cloud/project/" + this.id + "/consumption", Method.GET, credentials)
+
+        Calendar cal = Calendar.getInstance(Locale.FRENCH);
+        Long time = System.currentTimeMillis();
+        
+        cal.setTime(new Date(time));
+        cal.set(Calendar.DAY_OF_MONTH, 1);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+
+        return new RequestBuilder("/cloud/project/" + this.id + "/consumption?from=" + URLEncoder.encode(OvhApi.timeToDate(cal.getTime().getTime())) + "&to=" + URLEncoder.encode(OvhApi.timeToDate(time)), Method.GET, credentials)
                 .build()
                 .flatMap((Response t1) -> {
                     if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
@@ -242,7 +257,6 @@ public class Project {
                     JSONObject output = t1.jsonObject();
                     return Observable.just(_setConsumption(new Consumption(output)));
                 });
-        return null;
     }
 
     public class Consumption {
@@ -253,12 +267,14 @@ public class Project {
         private Consumption(JSONObject _json) {
             services = new ArrayList<>();
 
-            for (String key : _json.keySet()) {
-                services.add(new Service(key, _json.getJSONObject(key)));
+            for (String key : _json.getJSONObject("current").keySet()) {
+                if (!key.equals("total")) {
+                    services.add(new Service(key, _json.getJSONObject("current").getJSONObject(key)));
+                }
             }
-            total = new Cost(_json.getJSONObject("total").getString("currencyCode"),
-                    _json.getJSONObject("total").getString("text"),
-                    _json.getJSONObject("total").getDouble("value"));
+            total = new Cost(_json.getJSONObject("current").getJSONObject("total").getString("currencyCode"),
+                    _json.getJSONObject("current").getJSONObject("total").getString("text"),
+                    _json.getJSONObject("current").getJSONObject("total").getDouble("value"));
         }
 
         public List<Service> getServices() {

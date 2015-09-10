@@ -24,17 +24,21 @@
 package com.github.cambierr.ovhapi.cloud;
 
 import com.github.cambierr.ovhapi.auth.Credential;
+import static com.github.cambierr.ovhapi.cloud.Storage.byId;
 import com.github.cambierr.ovhapi.common.Method;
 import com.github.cambierr.ovhapi.common.OvhApi;
 import com.github.cambierr.ovhapi.common.RequestBuilder;
 import com.github.cambierr.ovhapi.common.Response;
+import com.github.cambierr.ovhapi.exception.PartialObjectException;
 import com.github.cambierr.ovhapi.exception.RequestException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import rx.Observable;
+import rx.functions.Func1;
 
 /**
  *
@@ -43,13 +47,14 @@ import rx.Observable;
 public class Project {
 
     private boolean unleash;
-    private final long creationDate;
-    private final String status;
+    private long creationDate;
+    private String status;
     private String description;
     private final String id;
     private double balance = Double.MIN_VALUE;
     private Consumption consumption = null;
 
+    private boolean partial = false;
     private final Credential credentials;
 
     private Project(Credential _credentials, String _id, String _status, long _creationDate, boolean _unleash, String _description) {
@@ -61,7 +66,41 @@ public class Project {
         this.credentials = _credentials;
     }
 
+    private Project(Credential _credentials, String _id) {
+        credentials = _credentials;
+        id = _id;
+        partial = true;
+    }
+
+    public boolean isPartial() {
+        return partial;
+    }
+
+    public Observable<Project> update() {
+        return byId(credentials, id)
+                .map((Project t1) -> {
+                    this.balance = t1.balance;
+                    this.consumption = t1.consumption;
+                    this.creationDate = t1.creationDate;
+                    this.description = t1.description;
+                    this.status = t1.status;
+                    this.unleash = t1.unleash;
+                    this.partial = false;
+                    return this;
+                });
+    }
+
+    public Observable<Project> complete() {
+        if (!partial) {
+            return Observable.just(this);
+        }
+        return update();
+    }
+
     public boolean isUnleashed() {
+        if (partial) {
+            throw new PartialObjectException();
+        }
         return unleash;
     }
 
@@ -70,14 +109,23 @@ public class Project {
     }
 
     public long getCreationDate() {
+        if (partial) {
+            throw new PartialObjectException();
+        }
         return creationDate;
     }
 
     public String getStatus() {
+        if (partial) {
+            throw new PartialObjectException();
+        }
         return status;
     }
 
     public String getDescription() {
+        if (partial) {
+            throw new PartialObjectException();
+        }
         return description;
     }
 
@@ -115,9 +163,9 @@ public class Project {
                     if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
                         return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
                     }
-                    return Observable.from(t1.jsonObject().keySet());
-                })
-                .flatMap((String t1) -> byId(_credentials, t1));
+                    JSONArray resp = t1.jsonArray();
+                    return Observable.range(1, resp.length()).map((Integer t) -> new Project(_credentials, resp.getString(t)));
+                });
     }
 
     private Project _setDescription(String _description) {

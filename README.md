@@ -79,3 +79,12 @@ Credential.build("applicationKey", "applicationSecret", "consumerKey")
                 )
                 .subscribe();
 ```
+
+##Maven
+```xml
+<dependency>
+  <groupId>com.github.cambierr</groupId>
+  <artifactId>ovhapi</artifactId>
+  <version>...</version>
+</dependency>
+```

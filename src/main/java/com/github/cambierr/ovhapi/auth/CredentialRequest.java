@@ -23,17 +23,13 @@
  */
 package com.github.cambierr.ovhapi.auth;
 
-import com.github.cambierr.ovhapi.cloud.Region;
 import com.github.cambierr.ovhapi.common.Method;
 import com.github.cambierr.ovhapi.common.RequestBuilder;
 import com.github.cambierr.ovhapi.common.Response;
 import com.github.cambierr.ovhapi.exception.RequestException;
 import com.github.cambierr.ovhapi.exception.TokenNotLinkedException;
-import java.io.IOException;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import rx.Observable;
-import rx.functions.Func1;
 
 /**
  *
@@ -47,6 +43,14 @@ public class CredentialRequest {
     private final String validationUrl;
     private boolean linked;
 
+    /**
+     * Creates a credential request to get a CK
+     * @param _applicationKey the OVH API application key
+     * @param _applicationSecret the OVH API application secret
+     * @param _rules the list of rules to be granted by the CK
+     * @param _redirection the redirection url for after-connection
+     * @return an Observable CredentialRequest
+     */
     public static Observable<CredentialRequest> build(String _applicationKey, String _applicationSecret, AccessRules _rules, String _redirection) {
         return new RequestBuilder("/auth/credential", Method.POST, _applicationKey)
                 .body(new JSONObject().put("redirection", _redirection).put("accessRules", _rules.toJson()).toString())
@@ -68,10 +72,20 @@ public class CredentialRequest {
         validationUrl = _validationUrl;
     }
 
+    /**
+     * Returns the validation url associated with this request
+     * @return the validation url
+     */
     public String getValidationUrl() {
         return validationUrl;
     }
-
+    /**
+     * Checks if this request (and its CK) has been linked to an user account
+     *  
+     * <p><strong>Currently, this method isn't implemented yet and will always return true.</strong></p>
+     * 
+     * @return true if linked, or false
+     */
     public boolean isLinked() {
         if (linked) {
             return true;
@@ -83,7 +97,11 @@ public class CredentialRequest {
 
         return linked;
     }
-
+/**
+ * Returns the Credential object matching this request if CK has been linked, or throws an exception
+ * @return the credential object matching this request
+ * @throws TokenNotLinkedException if this request (its CK) hasn't been linked to an user
+ */
     public Credential getCredential() throws TokenNotLinkedException {
         if (!isLinked()) {
             throw new TokenNotLinkedException();

@@ -28,7 +28,6 @@ import com.github.cambierr.ovhapi.common.RequestBuilder;
 import com.github.cambierr.ovhapi.common.Response;
 import com.github.cambierr.ovhapi.exception.PartialObjectException;
 import com.github.cambierr.ovhapi.exception.RequestException;
-import java.io.IOException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import rx.Observable;
@@ -61,6 +60,13 @@ public class Storage {
         isPublic = _isPublic;
     }
 
+    /**
+     * Lists all storage containers availables in a project
+     *
+     * @param _project The project to list storage containers of
+     *
+     * @return Zero to several observable Storage objects
+     */
     public static Observable<Storage> list(Project _project) {
         return new RequestBuilder("/cloud/project/" + _project.getId() + "/storage", Method.GET, _project.getCredentials())
                 .build()
@@ -80,6 +86,14 @@ public class Storage {
                 });
     }
 
+    /**
+     * Loads a storage container by its id
+     *
+     * @param _project the project to load the storage container from
+     * @param _id the storage container id
+     *
+     * @return an observable Storage object
+     */
     public static Observable<Storage> byId(Project _project, String _id) {
         return new RequestBuilder("/cloud/project/" + _project.getId() + "/storage/" + _id, Method.GET, _project.getCredentials())
                 .build()
@@ -92,26 +106,58 @@ public class Storage {
                 });
     }
 
+    /**
+     * Returns the region of this storage container
+     *
+     * @return the region of this storage container
+     */
     public Region getRegion() {
         return region;
     }
 
+    /**
+     * Returns the name of this storage container
+     *
+     * @return the name of this storage container
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Returns the size of this storage container
+     *
+     * @return the size of this storage container
+     */
     public long getStoredBytes() {
         return storedBytes;
     }
 
+    /**
+     * Returns the id of this storage container
+     *
+     * @return the id of this storage container
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * Returns the object count of this storage container
+     *
+     * @return the object count of this storage container
+     */
     public long getStoredObjects() {
         return storedObjects;
     }
 
+    /**
+     * Returns the static url of this storage container
+     *
+     * @return the static url of this storage container
+     *
+     * @throws PartialObjectException if this object is partially loaded
+     */
     public String getStaticUrl() {
         if (partial) {
             throw new PartialObjectException();
@@ -119,6 +165,13 @@ public class Storage {
         return staticUrl;
     }
 
+    /**
+     * Returns the public status of this storage container
+     *
+     * @return the public status of this storage container
+     *
+     * @throws PartialObjectException if this object is partially loaded
+     */
     public boolean isPublic() {
         if (partial) {
             throw new PartialObjectException();
@@ -126,10 +179,20 @@ public class Storage {
         return isPublic;
     }
 
+    /**
+     * Checks if this storage container is partially loaded or not
+     *
+     * @return true if partially loaded, or false
+     */
     public boolean isPartial() {
         return partial;
     }
 
+    /**
+     * Updates a storage container object
+     *
+     * @return the Observable updated Storage object
+     */
     public Observable<Storage> update() {
         return byId(project, id)
                 .map((Storage t1) -> {
@@ -143,6 +206,11 @@ public class Storage {
                 });
     }
 
+    /**
+     * Completes a partial storage container object
+     *
+     * @return the Observable completed Storage object
+     */
     public Observable<Storage> complete() {
         if (!partial) {
             return Observable.just(this);
@@ -150,6 +218,11 @@ public class Storage {
         return update();
     }
 
+    /**
+     * Deletes this storage container object
+     *
+     * @return the observable deleted Storage object
+     */
     public Observable<Storage> delete() {
         return new RequestBuilder("/cloud/project/" + project.getId() + "/storage/" + id, Method.DELETE, project.getCredentials())
                 .build()
@@ -161,6 +234,12 @@ public class Storage {
                 });
     }
 
+    /**
+     *Updates the CORS settings of this storage container
+     * @param _cors the CORS origin to set
+     *
+     * @return the observable updated Storage object
+     */
     public Observable<Storage> cors(String _cors) {
         return new RequestBuilder("/cloud/project/" + project.getId() + "/storage/" + id + "/cors", Method.POST, project.getCredentials())
                 .body(new JSONObject()

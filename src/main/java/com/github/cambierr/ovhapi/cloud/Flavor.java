@@ -28,7 +28,6 @@ import com.github.cambierr.ovhapi.common.RequestBuilder;
 import com.github.cambierr.ovhapi.common.Response;
 import com.github.cambierr.ovhapi.exception.PartialObjectException;
 import com.github.cambierr.ovhapi.exception.RequestException;
-import java.io.IOException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import rx.Observable;
@@ -63,12 +62,26 @@ public class Flavor {
         project = _project;
     }
 
+    /**
+     * For internal use only
+     *
+     * @param _project the project to request from
+     * @param _id the flavor id
+     * @param _region the region of this flavor
+     *
+     * @return a Flavor object
+     */
     protected static Flavor byId(Project _project, String _id, Region _region) {
         Flavor temp = new Flavor(_project, _id, 0, _region, null, 0, null, null, 0);
         temp.partial = true;
         return temp;
     }
 
+    /**
+     * Completes a partial Flavor object
+     *
+     * @return the Observable completed Flavor object
+     */
     public Observable<Flavor> complete() {
         if (!partial) {
             return Observable.just(this);
@@ -87,12 +100,25 @@ public class Flavor {
                 });
     }
 
+    /**
+     * Checks if this Flavor is partially loaded or not
+     *
+     * @return true if partially loaded, or false
+     */
     public boolean isPartial() {
         return partial;
     }
 
+    /**
+     * Lists all flavors availables in a project and in a region (of provided)
+     *
+     * @param _project The project to list flavors of
+     * @param _region The region to list flavors from (null = all regions)
+     *
+     * @return Zero to several observable Flavor objects
+     */
     public static Observable<Flavor> list(Project _project, Region _region) {
-        return new RequestBuilder("/cloud/project/" + _project + "/flavor?region=" + _region.getName(), Method.GET, _project.getCredentials())
+        return new RequestBuilder("/cloud/project/" + _project + "/flavor?region=" + ((_region != null) ? _region.getName() : ""), Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
                     if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
@@ -103,6 +129,14 @@ public class Flavor {
                 });
     }
 
+    /**
+     * Loads a Flavor by its id
+     *
+     * @param _project the project to load the Flavor from
+     * @param _id the Flavor id
+     *
+     * @return an observable flavor object
+     */
     public static Observable<Flavor> byId(Project _project, String _id) {
         return new RequestBuilder("/cloud/project/" + _project.getId() + "/flavor/" + _id, Method.GET, _project.getCredentials())
                 .build()
@@ -126,51 +160,84 @@ public class Flavor {
                 });
     }
 
+    /**
+     * Returns this flavor's id
+     *
+     * @return this flavor's id
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * Returns the disk space available on this flavor
+     * @return the disk space available on this flavor
+     * @throws PartialObjectException if this object is partially loaded
+     */
     public int getDisk() {
-        if(partial){
+        if (partial) {
             throw new PartialObjectException();
         }
         return disk;
     }
-
+    /**
+     * Returns the region of this flavor
+     * @return the region of this flavor
+     */
     public Region getRegion() {
         return region;
     }
-
+/**
+     * Returns the name of this flavor
+     * @return the name of this flavor
+     * @throws PartialObjectException if this object is partially loaded
+     */
     public String getName() {
-        if(partial){
+        if (partial) {
             throw new PartialObjectException();
         }
         return name;
     }
-
+/**
+     * Returns the cpu count of this flavor
+     * @return the cpu count of this flavor
+     * @throws PartialObjectException if this object is partially loaded
+     */
     public int getVcpus() {
-        if(partial){
+        if (partial) {
             throw new PartialObjectException();
         }
         return vcpus;
     }
-
+/**
+     * Returns the type of this flavor
+     * @return the type of this flavor
+     * @throws PartialObjectException if this object is partially loaded
+     */
     public String getType() {
-        if(partial){
+        if (partial) {
             throw new PartialObjectException();
         }
         return type;
     }
-
+/**
+     * Returns the OS type of this flavor
+     * @return the OS type of this flavor
+     * @throws PartialObjectException if this object is partially loaded
+     */
     public String getOsType() {
-        if(partial){
+        if (partial) {
             throw new PartialObjectException();
         }
         return osType;
     }
-
+/**
+     * Returns the amount of RAM of this flavor
+     * @return the amount of RAM of this flavor
+     * @throws PartialObjectException if this object is partially loaded
+     */
     public int getRam() {
-        if(partial){
+        if (partial) {
             throw new PartialObjectException();
         }
         return ram;

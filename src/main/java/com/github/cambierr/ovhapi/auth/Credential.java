@@ -30,7 +30,6 @@ import java.security.NoSuchAlgorithmException;
 import javax.net.ssl.HttpsURLConnection;
 import rx.Observable;
 import rx.Subscriber;
-import rx.functions.Func1;
 
 /**
  *
@@ -48,6 +47,14 @@ public class Credential {
         consumerKey = _consumerKey;
     }
 
+    /**
+     *  Creates a credential object
+     * @param _applicationKey the OVH API application key
+     * @param _applicationSecret the OVH API application secret
+     * @param _consumerKey the OVH API consumer key
+     *
+     * @return an Observable Credential
+     */
     public static Observable<Credential> build(String _applicationKey, String _applicationSecret, String _consumerKey) {
         return Observable
                 .just(new Credential(_applicationKey, _applicationSecret, _consumerKey))
@@ -62,6 +69,14 @@ public class Credential {
                 }));
     }
 
+    /**
+     * Signs an API request
+     *
+     * @param _link the API request
+     * @param _body the request body (if any)
+     *
+     * @throws NoSuchAlgorithmException if the diggest algorithm (SHA1) is missing in the JVM
+     */
     public void sign(HttpsURLConnection _link, String _body) throws NoSuchAlgorithmException {
         long time = System.currentTimeMillis() / 1000;
 
@@ -91,6 +106,15 @@ public class Credential {
         return result;
     }
 
+    /**
+     * Checks if this CK has been linked to an user account
+     *
+     * <p>
+     * <strong>Currently, this method isn't implemented yet and will always return</strong></p>
+     *
+     * @throws com.github.cambierr.ovhapi.exception.UnclaimedConsumerKeyException if this CK hasn't been linked to an user account
+     * @throws com.github.cambierr.ovhapi.exception.InvalidConsumerKeyException if this CK does not exists
+     */
     public void check() throws UnclaimedConsumerKeyException, InvalidConsumerKeyException {
         /**
          * @pending: waiting for ovh

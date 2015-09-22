@@ -23,12 +23,10 @@
  */
 package com.github.cambierr.ovhapi.cloud;
 
-import com.github.cambierr.ovhapi.auth.Credential;
 import com.github.cambierr.ovhapi.common.Method;
 import com.github.cambierr.ovhapi.common.RequestBuilder;
 import com.github.cambierr.ovhapi.common.Response;
 import com.github.cambierr.ovhapi.exception.RequestException;
-import java.io.IOException;
 import org.json.JSONArray;
 import rx.Observable;
 
@@ -47,11 +45,26 @@ public class Region {
         project = _project;
     }
 
+    /**
+     * For internal use only
+     *
+     * @param _project the project to request from
+     * @param _name the region name
+     *
+     * @return a Region object
+     */
     protected static Region byName(Project _project, String _name) {
         return new Region(_project, _name);
     }
 
-    public static Observable<Region> byProject(Project _project) {
+    /**
+     * Lists all regions available in the provided project
+     *
+     * @param _project the project to list regions of
+     *
+     * @return Zero to several observable Region objects
+     */
+    public static Observable<Region> list(Project _project) {
         return new RequestBuilder("/cloud/project/" + _project + "/region", Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
@@ -65,6 +78,11 @@ public class Region {
 
     }
 
+    /**
+     * Returns this region name
+     *
+     * @return this region name
+     */
     public String getName() {
         return name;
     }

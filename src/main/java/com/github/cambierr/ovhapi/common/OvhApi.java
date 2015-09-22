@@ -74,7 +74,7 @@ public class OvhApi {
      * @param _path the API path to be called
      * @param _method the API method
      *
-     * @return a request matching provided path & method
+     * @return a request matching provided path and method
      *
      * @throws MalformedURLException if API_ENDPOINT, API_VERSION, or provided path is malformed
      * @throws ProtocolException if something goes wrong in the ssl handshake

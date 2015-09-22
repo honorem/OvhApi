@@ -110,7 +110,7 @@ public class Flavor {
     }
 
     /**
-     * Lists all flavors availables in a project and in a region (of provided)
+     * Lists all flavors availables in a project and in a region (if provided)
      *
      * @param _project The project to list flavors of
      * @param _region The region to list flavors from (null = all regions)

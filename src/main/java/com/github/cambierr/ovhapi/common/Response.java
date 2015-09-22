@@ -87,7 +87,7 @@ public class Response {
      *
      * @return the response body of the request, as a JSON object
      *
-     * @throws JSONException if JSON is not valid
+     * @throws org.json.JSONException if JSON is not valid
      */
     public JSONObject jsonObject() {
         return new JSONObject(body());
@@ -98,7 +98,7 @@ public class Response {
      *
      * @return the response body of the request, as a JSON array
      *
-     * @throws JSONException if JSON is not valid
+     * @throws org.json.JSONException if JSON is not valid
      */
     public JSONArray jsonArray() {
         return new JSONArray(body());

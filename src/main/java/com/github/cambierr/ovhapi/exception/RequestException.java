@@ -24,7 +24,7 @@
 package com.github.cambierr.ovhapi.exception;
 
 /**
- *
+ * Fired when something does wrong with an API call
  * @author cambierr
  */
 public class RequestException extends Exception {
@@ -39,15 +39,24 @@ public class RequestException extends Exception {
         body = _body;
         message = _message;
     }
-    
+    /**
+     * Returns the request status code
+     * @return the request status code
+     */
     public int code(){
         return code;
     }
-    
+    /**
+     * Returns the request status title
+     * @return the request status title
+     */
     public String message(){
         return message;
     }
-    
+    /**
+     * Returns the request response body
+     * @return the request response body
+     */
     public String body(){
         return body;
     }

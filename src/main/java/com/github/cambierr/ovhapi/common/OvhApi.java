@@ -38,15 +38,29 @@ import javax.net.ssl.HttpsURLConnection;
  */
 public class OvhApi {
 
+    /**
+     * The API version
+     */
     public final static String API_VERSION = "1.0";
+    /**
+     * The API endpoint
+     */
     public final static String API_ENDPOINT = "eu.api.ovh.com";
     private static OvhApi instance = null;
+    /**
+     * The API date format
+     */
     private final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXX");
 
     private OvhApi() {
         System.setProperty("https.protocols", "TLSv1");
     }
 
+    /**
+     * Returns a singleton instances of the OVH API
+     *
+     * @return a singleton instances of the OVH API
+     */
     protected static OvhApi getInstance() {
         if (instance == null) {
             instance = new OvhApi();
@@ -54,18 +68,46 @@ public class OvhApi {
         return instance;
     }
 
+    /**
+     * Returns a pre-filled API call
+     *
+     * @param _path the API path to be called
+     * @param _method the API method
+     *
+     * @return a request matching provided path & method
+     *
+     * @throws MalformedURLException if API_ENDPOINT, API_VERSION, or provided path is malformed
+     * @throws ProtocolException if something goes wrong in the ssl handshake
+     * @throws IOException if something goes wrong with the I/O
+     */
     protected HttpsURLConnection getBase(String _path, Method _method) throws MalformedURLException, ProtocolException, IOException {
         HttpsURLConnection link = (HttpsURLConnection) new URL("https://" + API_ENDPOINT + "/" + API_VERSION + _path).openConnection();
         link.setRequestMethod(_method.name());
         link.setRequestProperty("Accept", "application/json");
         return link;
     }
-    
-    public static long dateToTime(String _date) throws ParseException{
+
+    /**
+     * Converts OVH API's dates to timestamps
+     *
+     * @param _date the date to be converted
+     *
+     * @return the matching timestamp
+     *
+     * @throws ParseException if date format is not the awaited one
+     */
+    public static long dateToTime(String _date) throws ParseException {
         return dateFormat.parse(_date).getTime();
     }
-    
-    public static String timeToDate(long _time){
+
+    /**
+     * Converts timestamp to OVH API's date format
+     *
+     * @param _time the timestamp to convert
+     *
+     * @return the formated date
+     */
+    public static String timeToDate(long _time) {
         return dateFormat.format(new Date(_time));
     }
 }

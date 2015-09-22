@@ -42,6 +42,13 @@ public class RequestBuilder {
     private final Credential credentials;
     private final String applicationKey;
 
+    /**
+     * Creates a RequestBuilder for CredentialRequest
+     *
+     * @param _path the path of the request
+     * @param _method the method of the request
+     * @param _applicatioKey the OVH API application key
+     */
     public RequestBuilder(String _path, Method _method, String _applicatioKey) {
         path = _path;
         method = _method;
@@ -49,6 +56,13 @@ public class RequestBuilder {
         applicationKey = _applicatioKey;
     }
 
+    /**
+     * Creates a RequestBuilder for API calls
+     *
+     * @param _path the path of the request
+     * @param _method the method of the request
+     * @param _credentials the Credentials to be used in the request
+     */
     public RequestBuilder(String _path, Method _method, Credential _credentials) {
         path = _path;
         method = _method;
@@ -56,6 +70,15 @@ public class RequestBuilder {
         applicationKey = null;
     }
 
+    /**
+     * Appends a body to the request (only for PUT and POST requests)
+     *
+     * @param _body the body to be appended
+     *
+     * @return the updated RequestBuilder
+     *
+     * @throws IllegalArgumentException if called on a request that doesn't supports bodys
+     */
     public RequestBuilder body(String _body) {
         if (!this.method.equals(Method.POST) && !this.method.equals(Method.PUT)) {
             throw new IllegalArgumentException("Body should only be appended to POST or PUT request");
@@ -64,13 +87,17 @@ public class RequestBuilder {
         return this;
     }
 
+    /**
+     * Builds and execute the request, returning a response
+     * @return an observable Resposne object
+     */
     public Observable<Response> build() {
         return Observable.create((Subscriber<? super Response> t1) -> {
             try {
                 HttpsURLConnection link = OvhApi.getInstance().getBase(path, method);
                 if (credentials != null) {
                     credentials.sign(link, body);
-                } else if(applicationKey != null){
+                } else if (applicationKey != null) {
                     link.addRequestProperty("X-Ovh-Application", this.applicationKey);
                 }
                 link.setDoOutput(true);

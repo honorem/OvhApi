@@ -24,22 +24,14 @@
 package com.github.cambierr.ovhapi.exception;
 
 /**
- *
+ * Fired when trying to access a non-loaded field from a partial object
  * @author cambierr
  */
 public class PartialObjectException extends RuntimeException {
 
-    /**
-     * Creates a new instance of <code>PartialObjectException</code> without detail message.
-     */
     public PartialObjectException() {
     }
 
-    /**
-     * Constructs an instance of <code>PartialObjectException</code> with the specified detail message.
-     *
-     * @param msg the detail message.
-     */
     public PartialObjectException(String msg) {
         super(msg);
     }

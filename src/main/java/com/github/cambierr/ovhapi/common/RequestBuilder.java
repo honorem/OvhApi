@@ -89,6 +89,7 @@ public class RequestBuilder {
 
     /**
      * Builds and execute the request, returning a response
+     *
      * @return an observable Resposne object
      */
     public Observable<Response> build() {

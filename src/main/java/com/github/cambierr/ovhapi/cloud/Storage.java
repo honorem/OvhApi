@@ -235,7 +235,8 @@ public class Storage {
     }
 
     /**
-     *Updates the CORS settings of this storage container
+     * Updates the CORS settings of this storage container
+     *
      * @param _cors the CORS origin to set
      *
      * @return the observable updated Storage object

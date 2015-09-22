@@ -24,13 +24,15 @@
 package com.github.cambierr.ovhapi.exception;
 
 /**
- *Fired when using some credentials where the CK hasn't been linked to any user
+ * Fired when using some credentials where the CK hasn't been linked to any user
+ *
  * @author cambierr
  */
 public class TokenNotLinkedException extends Exception {
 
     public TokenNotLinkedException() {
     }
+
     public TokenNotLinkedException(String msg) {
         super(msg);
     }

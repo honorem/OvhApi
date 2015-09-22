@@ -24,21 +24,19 @@
 package com.github.cambierr.ovhapi.cloud;
 
 import com.github.cambierr.ovhapi.auth.Credential;
-import static com.github.cambierr.ovhapi.cloud.Storage.byId;
 import com.github.cambierr.ovhapi.common.Method;
 import com.github.cambierr.ovhapi.common.OvhApi;
 import com.github.cambierr.ovhapi.common.RequestBuilder;
 import com.github.cambierr.ovhapi.common.Response;
 import com.github.cambierr.ovhapi.exception.PartialObjectException;
 import com.github.cambierr.ovhapi.exception.RequestException;
-import java.io.IOException;
+import java.net.URLEncoder;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import rx.Observable;
-import rx.functions.Func1;
 
 /**
  *
@@ -46,19 +44,15 @@ import rx.functions.Func1;
  */
 public class Project {
 
-    private boolean unleash;
     private long creationDate;
     private String status;
     private String description;
     private final String id;
-    private double balance = Double.MIN_VALUE;
-    private Consumption consumption = null;
 
     private boolean partial = false;
     private final Credential credentials;
 
     private Project(Credential _credentials, String _id, String _status, long _creationDate, boolean _unleash, String _description) {
-        this.unleash = _unleash;
         this.creationDate = _creationDate;
         this.status = _status;
         this.description = _description;
@@ -72,24 +66,36 @@ public class Project {
         partial = true;
     }
 
+    /**
+     * Checks if this Project is partially loaded or not
+     *
+     * @return true if partially loaded, or false
+     */
     public boolean isPartial() {
         return partial;
     }
 
+    /**
+     * Updates a project object
+     *
+     * @return the Observable updated Project object
+     */
     public Observable<Project> update() {
         return byId(credentials, id)
                 .map((Project t1) -> {
-                    this.balance = t1.balance;
-                    this.consumption = t1.consumption;
                     this.creationDate = t1.creationDate;
                     this.description = t1.description;
                     this.status = t1.status;
-                    this.unleash = t1.unleash;
                     this.partial = false;
                     return this;
                 });
     }
 
+    /**
+     * Completes a partial Project object
+     *
+     * @return the Observable completed Project object
+     */
     public Observable<Project> complete() {
         if (!partial) {
             return Observable.just(this);
@@ -97,17 +103,22 @@ public class Project {
         return update();
     }
 
-    public boolean isUnleashed() {
-        if (partial) {
-            throw new PartialObjectException();
-        }
-        return unleash;
-    }
-
+    /**
+     * Returns the credentials of this project
+     *
+     * @return the credentials of this project
+     */
     public Credential getCredentials() {
         return credentials;
     }
 
+    /**
+     * Returns the creation date of this project
+     *
+     * @return the creation date (timestamp) of this project
+     *
+     * @throws PartialObjectException if this object is partially loaded
+     */
     public long getCreationDate() {
         if (partial) {
             throw new PartialObjectException();
@@ -115,6 +126,13 @@ public class Project {
         return creationDate;
     }
 
+    /**
+     * Returns the status of this project
+     *
+     * @return the status of this project
+     *
+     * @throws PartialObjectException if this object is partially loaded
+     */
     public String getStatus() {
         if (partial) {
             throw new PartialObjectException();
@@ -122,6 +140,13 @@ public class Project {
         return status;
     }
 
+    /**
+     * Returns the description of this project
+     *
+     * @return the description of this project
+     *
+     * @throws PartialObjectException if this object is partially loaded
+     */
     public String getDescription() {
         if (partial) {
             throw new PartialObjectException();
@@ -129,10 +154,23 @@ public class Project {
         return description;
     }
 
+    /**
+     * Returns the id of this project
+     *
+     * @return the id of this project
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * Loads a Project by its id
+     *
+     * @param _credentials The credentials to use to load the project
+     * @param _id the Project id
+     *
+     * @return an observable project object
+     */
     public static Observable<Project> byId(Credential _credentials, String _id) {
         return new RequestBuilder("/cloud/project/" + _id, Method.GET, _credentials)
                 .build()
@@ -156,6 +194,13 @@ public class Project {
                 });
     }
 
+    /**
+     * Lists all projects availables
+     *
+     * @param _credentials The credentials to use to load the project
+     *
+     * @return Zero to several observable Project objects
+     */
     public static Observable<Project> list(Credential _credentials) {
         return new RequestBuilder("/cloud/project", Method.GET, _credentials)
                 .build()
@@ -173,6 +218,13 @@ public class Project {
         return this;
     }
 
+    /**
+     * Updates this project's decription
+     *
+     * @param _description the new project description
+     *
+     * @return an obsevable Project matching the update request
+     */
     public Observable<Project> setDescription(String _description) {
         return new RequestBuilder("/cloud/project/" + this.id, Method.PUT, credentials)
                 .body(new JSONObject().put("description", _description).toString())
@@ -185,64 +237,30 @@ public class Project {
                 });
     }
 
-    private Project _unleash() {
-        unleash = true;
-        return this;
-    }
-
-    public Observable<Project> unleash() {
-        if (isUnleashed()) {
-            return Observable.just(this);
+    /**
+     * Returns the consumption of this project
+     *
+     * @param _from The start of the consumption window to fetch
+     * @param _to The end of the consumption window to fetch
+     *
+     * @return an observable Consumption object
+     */
+    public Observable<Consumption> getConsumption(long _from, long _to) {
+        String args;
+        try {
+            args = "?from=" + URLEncoder.encode(OvhApi.timeToDate(_from), "UTF-8") + "&to=" + URLEncoder.encode(OvhApi.timeToDate(_to), "UTF-8");
+        } catch (Exception ex) {
+            return Observable.error(ex);
         }
-        return new RequestBuilder("/cloud/project/" + this.id + "/unleash", Method.POST, credentials)
-                .build()
-                .flatMap((Response t1) -> {
-                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
-                    }
-                    return Observable.just(_unleash());
-                });
-    }
-
-    private double _setBalance(double _balance) {
-        balance = _balance;
-        return _balance;
-    }
-
-    public Observable<Double> getBalance(boolean _cached) {
-        if (_cached && balance != Double.MIN_VALUE) {
-            return Observable.just(balance);
-        }
-        return new RequestBuilder("/cloud/project/" + this.id + "/balance", Method.GET, credentials)
+        return new RequestBuilder("/cloud/project/" + this.id + "/consumption" + args, Method.GET, credentials)
                 .build()
                 .flatMap((Response t1) -> {
                     if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
                         return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
                     }
                     JSONObject output = t1.jsonObject();
-                    return Observable.just(_setBalance(output.getDouble("currentTotal")));
+                    return Observable.just(new Consumption(output));
                 });
-    }
-
-    private Consumption _setConsumption(Consumption _consumption) {
-        consumption = _consumption;
-        return _consumption;
-    }
-
-    public Observable<Consumption> getConsumption(boolean _cached) {
-        if (_cached && consumption != null) {
-            return Observable.just(consumption);
-        }
-        new RequestBuilder("/cloud/project/" + this.id + "/consumption", Method.GET, credentials)
-                .build()
-                .flatMap((Response t1) -> {
-                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
-                    }
-                    JSONObject output = t1.jsonObject();
-                    return Observable.just(_setConsumption(new Consumption(output)));
-                });
-        return null;
     }
 
     public class Consumption {

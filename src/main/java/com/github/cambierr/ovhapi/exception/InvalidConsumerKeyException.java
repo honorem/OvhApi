@@ -25,6 +25,7 @@ package com.github.cambierr.ovhapi.exception;
 
 /**
  * Fired when using a CK that doesn't exists
+ *
  * @author cambierr
  */
 public class InvalidConsumerKeyException extends Exception {

@@ -28,18 +28,19 @@ package com.github.cambierr.ovhapi.common;
  * @author cambierr
  */
 public enum Method {
+
     /**
      * GET request
      */
-    GET, 
+    GET,
     /**
      * PUT request
      */
-    PUT, 
+    PUT,
     /**
      * POST request
      */
-    POST, 
+    POST,
     /**
      * DELETE request
      */

@@ -25,6 +25,7 @@ package com.github.cambierr.ovhapi.exception;
 
 /**
  * Fired when trying to access a non-loaded field from a partial object
+ *
  * @author cambierr
  */
 public class PartialObjectException extends RuntimeException {

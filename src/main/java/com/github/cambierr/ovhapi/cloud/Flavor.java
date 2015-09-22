@@ -171,7 +171,9 @@ public class Flavor {
 
     /**
      * Returns the disk space available on this flavor
+     *
      * @return the disk space available on this flavor
+     *
      * @throws PartialObjectException if this object is partially loaded
      */
     public int getDisk() {
@@ -180,16 +182,21 @@ public class Flavor {
         }
         return disk;
     }
+
     /**
      * Returns the region of this flavor
+     *
      * @return the region of this flavor
      */
     public Region getRegion() {
         return region;
     }
-/**
+
+    /**
      * Returns the name of this flavor
+     *
      * @return the name of this flavor
+     *
      * @throws PartialObjectException if this object is partially loaded
      */
     public String getName() {
@@ -198,9 +205,12 @@ public class Flavor {
         }
         return name;
     }
-/**
+
+    /**
      * Returns the cpu count of this flavor
+     *
      * @return the cpu count of this flavor
+     *
      * @throws PartialObjectException if this object is partially loaded
      */
     public int getVcpus() {
@@ -209,9 +219,12 @@ public class Flavor {
         }
         return vcpus;
     }
-/**
+
+    /**
      * Returns the type of this flavor
+     *
      * @return the type of this flavor
+     *
      * @throws PartialObjectException if this object is partially loaded
      */
     public String getType() {
@@ -220,9 +233,12 @@ public class Flavor {
         }
         return type;
     }
-/**
+
+    /**
      * Returns the OS type of this flavor
+     *
      * @return the OS type of this flavor
+     *
      * @throws PartialObjectException if this object is partially loaded
      */
     public String getOsType() {
@@ -231,9 +247,12 @@ public class Flavor {
         }
         return osType;
     }
-/**
+
+    /**
      * Returns the amount of RAM of this flavor
+     *
      * @return the amount of RAM of this flavor
+     *
      * @throws PartialObjectException if this object is partially loaded
      */
     public int getRam() {

@@ -53,7 +53,7 @@ public class Region {
      *
      * @return a Region object
      */
-    protected static Region byName(Project _project, String _name) {
+    public static Region byName(Project _project, String _name) {
         return new Region(_project, _name);
     }
 

@@ -50,7 +50,7 @@ public class OvhApi {
     /**
      * The API date format
      */
-    private final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXX");
+    private final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
 
     private OvhApi() {
         System.setProperty("https.protocols", "TLSv1");

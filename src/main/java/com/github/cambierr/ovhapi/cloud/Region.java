@@ -65,7 +65,7 @@ public class Region {
      * @return Zero to several observable Region objects
      */
     public static Observable<Region> list(Project _project) {
-        return new RequestBuilder("/cloud/project/" + _project + "/region", Method.GET, _project.getCredentials())
+        return new RequestBuilder("/cloud/project/" + _project.getId() + "/region", Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
                     if (t1.responseCode() < 200 || t1.responseCode() >= 300) {

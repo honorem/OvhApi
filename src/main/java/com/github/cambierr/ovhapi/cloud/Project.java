@@ -33,7 +33,10 @@ import com.github.cambierr.ovhapi.exception.RequestException;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import rx.Observable;
@@ -209,7 +212,7 @@ public class Project {
                         return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
                     }
                     JSONArray resp = t1.jsonArray();
-                    return Observable.range(1, resp.length()).map((Integer t) -> new Project(_credentials, resp.getString(t)));
+                    return Observable.range(0, resp.length()).map((Integer t) -> new Project(_credentials, resp.getString(t)));
                 });
     }
 
@@ -271,12 +274,14 @@ public class Project {
         private Consumption(JSONObject _json) {
             services = new ArrayList<>();
 
-            for (String key : _json.keySet()) {
-                services.add(new Service(key, _json.getJSONObject(key)));
+            for (String key : _json.getJSONObject("current").keySet()) {
+                if (!key.equals("total")) {
+                    services.add(new Service(key, _json.getJSONObject("current").getJSONObject(key)));
+                }
             }
-            total = new Cost(_json.getJSONObject("total").getString("currencyCode"),
-                    _json.getJSONObject("total").getString("text"),
-                    _json.getJSONObject("total").getDouble("value"));
+            total = new Cost(_json.getJSONObject("current").getJSONObject("total").getString("currencyCode"),
+                    _json.getJSONObject("current").getJSONObject("total").getString("text"),
+                    _json.getJSONObject("current").getJSONObject("total").getDouble("value"));
         }
 
         public List<Service> getServices() {

@@ -34,50 +34,71 @@ import org.json.JSONObject;
  * @author cambierr
  */
 public class AccessRules {
-    
+
     private final List<Rule> rules;
-    
-    public AccessRules(){
+
+    /**
+     * Initializes a newly created AccessRules list with no rules
+     */
+    public AccessRules() {
         rules = new ArrayList<>();
     }
-    
-    public AccessRules addRule(String _path, Method _method){
+
+    /**
+     * Adds a rule defined by a path and a method to the list
+     *
+     * @param _path the path of the rule
+     * @param _method the method of the rule
+     *
+     * @return the updated object
+     */
+    public AccessRules addRule(String _path, Method _method) {
         rules.add(new Rule(_path, _method));
         return this;
     }
-    
-    public AccessRules addRule(String _path){
-        for(Method m:Method.values()){
+
+    /**
+     * Adds a rule defined by a path and all methods
+     *
+     * @param _path the path of the rule
+     *
+     * @return the updated object
+     */
+    public AccessRules addRule(String _path) {
+        for (Method m : Method.values()) {
             addRule(_path, m);
         }
         return this;
     }
-    
-    public JSONArray toJson(){
+
+    /**
+     * Converts the access rules to json for api
+     *
+     * @return the JSON representation of the object
+     */
+    public JSONArray toJson() {
         JSONArray output = new JSONArray();
-        
+
         rules.stream().forEach((r) -> {
             output.put(r.toJson());
         });
-        
+
         return output;
     }
-    
-    
-    
-    private class Rule{
-        
+
+    private class Rule {
+
         private final String path;
         private final Method method;
-        
-        private Rule(String _path, Method _method){
+
+        private Rule(String _path, Method _method) {
             path = _path;
             method = _method;
         }
-        
-        private JSONObject toJson(){
+
+        private JSONObject toJson() {
             return new JSONObject().put("method", method.name()).put("path", path);
         }
-        
+
     }
 }

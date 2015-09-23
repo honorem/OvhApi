@@ -40,6 +40,15 @@ public class Response {
     private final InputStream body;
     private final byte[] entity;
 
+    /**
+     * For internal use only
+     *
+     * @param _status the response status
+     * @param _responseMsg the response message
+     * @param _body the response body
+     *
+     * @throws IOException in case of I/O error
+     */
     protected Response(int _status, String _responseMsg, InputStream _body) throws IOException {
         status = _status;
         body = _body;
@@ -55,26 +64,60 @@ public class Response {
         entity = buffer.toByteArray();
     }
 
+    /**
+     * Returns the response body of the request, as a String
+     *
+     * @return the response body of the request, as a String
+     */
     public String body() {
         return new String(entity());
     }
 
+    /**
+     * Returns the response body of the request, as a byte array
+     *
+     * @return the response body of the request, as a byte array
+     */
     public byte[] entity() {
         return entity;
     }
 
+    /**
+     * Returns the response body of the request, as a JSON object
+     *
+     * @return the response body of the request, as a JSON object
+     *
+     * @throws org.json.JSONException if JSON is not valid
+     */
     public JSONObject jsonObject() {
         return new JSONObject(body());
     }
 
+    /**
+     * Returns the response body of the request, as a JSON array
+     *
+     * @return the response body of the request, as a JSON array
+     *
+     * @throws org.json.JSONException if JSON is not valid
+     */
     public JSONArray jsonArray() {
         return new JSONArray(body());
     }
 
+    /**
+     * Returns the response code of the request
+     *
+     * @return the response code of the request
+     */
     public int responseCode() {
         return status;
     }
 
+    /**
+     * Returns the response message of the request
+     *
+     * @return the response message of the request
+     */
     public String responseMessage() {
         return responseMsg;
     }

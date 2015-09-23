@@ -24,22 +24,15 @@
 package com.github.cambierr.ovhapi.exception;
 
 /**
+ * Fired when using a CK that doesn't exists
  *
  * @author cambierr
  */
 public class InvalidConsumerKeyException extends Exception {
 
-    /**
-     * Creates a new instance of <code>InvalidConsumerKeyException</code> without detail message.
-     */
     public InvalidConsumerKeyException() {
     }
 
-    /**
-     * Constructs an instance of <code>InvalidConsumerKeyException</code> with the specified detail message.
-     *
-     * @param msg the detail message.
-     */
     public InvalidConsumerKeyException(String msg) {
         super(msg);
     }

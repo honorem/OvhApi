@@ -23,13 +23,11 @@
  */
 package com.github.cambierr.ovhapi.cloud;
 
-import static com.github.cambierr.ovhapi.cloud.Image.byId;
 import com.github.cambierr.ovhapi.common.Method;
 import com.github.cambierr.ovhapi.common.OvhApi;
 import com.github.cambierr.ovhapi.common.RequestBuilder;
 import com.github.cambierr.ovhapi.common.Response;
 import com.github.cambierr.ovhapi.exception.RequestException;
-import java.io.IOException;
 import java.text.ParseException;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -64,6 +62,14 @@ public class Instance {
         id = _id;
     }
 
+    /**
+     * Lists all instances in a project and in a region (if provided)
+     *
+     * @param _project The project to list instances from
+     * @param _region The region to list instances from (null = all regions)
+     *
+     * @return Zero to several observable Instance objects
+     */
     public static Observable<Instance> list(Project _project, Region _region) {
         return new RequestBuilder("/cloud/project/" + _project.getId() + "/instance?region=" + ((_region == null) ? "" : _region.getName()), Method.GET, _project.getCredentials())
                 .build()
@@ -73,17 +79,25 @@ public class Instance {
                     }
                     final JSONArray instances = t1.jsonArray();
                     return Observable.range(0, instances.length())
-                            .flatMap((Integer t2) -> {
-                                JSONObject instance = instances.getJSONObject(t2);
-                                try {
-                                    return Observable.just(new Instance(_project, Status.valueOf(instance.getString("status")), Region.byName(_project, instance.getString("region")), instance.getString("name"), Image.byId(_project, instance.getString("imageId"), Region.byName(_project, instance.getString("region"))), OvhApi.dateToTime(instance.getString("created")), Flavor.byId(_project, instance.getString("flavorId"), Region.byName(_project, instance.getString("region"))), SshKey.byIdPartial(_project, instance.getString("sshKeyId")), instance.getString("id")));
-                                } catch (Exception ex) {
-                                    return Observable.error(ex);
-                                }
-                            });
+                    .flatMap((Integer t2) -> {
+                        JSONObject instance = instances.getJSONObject(t2);
+                        try {
+                            return Observable.just(new Instance(_project, Status.valueOf(instance.getString("status")), Region.byName(_project, instance.getString("region")), instance.getString("name"), Image.byId(_project, instance.getString("imageId"), Region.byName(_project, instance.getString("region"))), OvhApi.dateToTime(instance.getString("created")), Flavor.byId(_project, instance.getString("flavorId"), Region.byName(_project, instance.getString("region"))), SshKey.byIdPartial(_project, instance.getString("sshKeyId")), instance.getString("id")));
+                        } catch (Exception ex) {
+                            return Observable.error(ex);
+                        }
+                    });
                 });
     }
 
+    /**
+     * Loads an Instance by its id
+     *
+     * @param _project the project to load the Instance from
+     * @param _id the Instance id
+     *
+     * @return an observable instance object
+     */
     public static Observable<Instance> byId(Project _project, String _id) {
         return new RequestBuilder("/cloud/project/" + _project.getId() + "/instance/" + _id, Method.GET, _project.getCredentials())
                 .build()
@@ -100,34 +114,74 @@ public class Instance {
                 });
     }
 
+    /**
+     * Returns the status of this instance
+     *
+     * @return the status of this instance
+     */
     public Status getStatus() {
         return status;
     }
 
+    /**
+     * Returns the region of this instance
+     *
+     * @return the region of this instance
+     */
     public Region getRegion() {
         return region;
     }
 
+    /**
+     * Returns the name of this instance
+     *
+     * @return the name of this instance
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Returns the image of this instance
+     *
+     * @return the image of this instance
+     */
     public Image getImage() {
         return image;
     }
 
+    /**
+     * Returns the creation date of this instance
+     *
+     * @return the creation date (timestamp) of this instance
+     */
     public long getCreationDate() {
         return creationDate;
     }
 
+    /**
+     * Returns the flavor of this instance
+     *
+     * @return the flavor of this instance
+     */
     public Flavor getFlavor() {
         return flavor;
     }
 
+    /**
+     * Returns the SSH key of this instance
+     *
+     * @return the SSH key of this instance
+     */
     public SshKey getSshKey() {
         return sshKey;
     }
 
+    /**
+     * Returns the id of this instance
+     *
+     * @return the id of this instance
+     */
     public String getId() {
         return id;
     }
@@ -159,12 +213,18 @@ public class Instance {
         SHELVED,
         SHELVED_OFFLOADED
     }
-    
-    public enum RebootType{
+
+    public enum RebootType {
+
         soft,
         hard
     }
 
+    /**
+     * Kills this Instance
+     *
+     * @return an observable Instance object matching the kill request
+     */
     public Observable<Instance> kill() {
         return new RequestBuilder("/cloud/project/" + project.getId() + "/instance/" + id, Method.DELETE, project.getCredentials())
                 .build()
@@ -176,6 +236,18 @@ public class Instance {
                 });
     }
 
+    /**
+     * Creates an instance
+     *
+     * @param _project The project to create the instance in
+     * @param _flavor The flavor to be used
+     * @param _image The image to be used
+     * @param _region The region to create the instance in
+     * @param _key The SSH key to be used (can be null)
+     * @param _name The name of the new instance
+     *
+     * @return an observable Instance matching the creation request
+     */
     public static Observable<Instance> create(Project _project, Flavor _flavor, Image _image, Region _region, SshKey _key, String _name) {
         return new RequestBuilder("/cloud/project/" + _project.getId() + "/instance", Method.POST, _project.getCredentials())
                 .body(new JSONObject()
@@ -199,9 +271,16 @@ public class Instance {
                     }
                 });
     }
-    
+
+    /**
+     * Resizes an instance to a new flavor
+     *
+     * @param _flavor The new Flavor to be used
+     *
+     * @return an observable Instance matching the resize request
+     */
     public Observable<Instance> resize(Flavor _flavor) {
-        return new RequestBuilder("/cloud/project/" + project.getId() + "/instance/"+id+"/resize", Method.POST, project.getCredentials())
+        return new RequestBuilder("/cloud/project/" + project.getId() + "/instance/" + id + "/resize", Method.POST, project.getCredentials())
                 .body(new JSONObject()
                         .put("flavorId", _flavor.getId())
                         .toString()
@@ -217,9 +296,16 @@ public class Instance {
                     return Observable.just(this);
                 });
     }
-    
+
+    /**
+     * Reinstalls an instance
+     *
+     * @param _image The new Image to be used
+     *
+     * @return and observable Instance matching the reinstall request
+     */
     public Observable<Instance> reinstall(Image _image) {
-        return new RequestBuilder("/cloud/project/" + project.getId() + "/instance/"+id+"/reinstall", Method.POST, project.getCredentials())
+        return new RequestBuilder("/cloud/project/" + project.getId() + "/instance/" + id + "/reinstall", Method.POST, project.getCredentials())
                 .body(new JSONObject()
                         .put("imageId", _image.getId())
                         .toString()
@@ -235,9 +321,16 @@ public class Instance {
                     return Observable.just(this);
                 });
     }
-    
+
+    /**
+     * Renames an instance
+     *
+     * @param _name The new name to be used
+     *
+     * @return and observable Instance matching the rename request
+     */
     public Observable<Instance> rename(String _name) {
-        return new RequestBuilder("/cloud/project/" + project.getId() + "/instance/"+id, Method.PUT, project.getCredentials())
+        return new RequestBuilder("/cloud/project/" + project.getId() + "/instance/" + id, Method.PUT, project.getCredentials())
                 .body(new JSONObject()
                         .put("instanceName", _name)
                         .toString()
@@ -252,8 +345,13 @@ public class Instance {
                     return Observable.just(this);
                 });
     }
-    
-    public Observable<Instance> update(){
+
+    /**
+     * Updates an Instance object
+     *
+     * @return the Observable updated Instance object
+     */
+    public Observable<Instance> update() {
         return byId(project, id)
                 .map((Instance t1) -> {
                     this.flavor = t1.flavor;
@@ -263,9 +361,16 @@ public class Instance {
                     return this;
                 });
     }
-    
+
+    /**
+     * Reboots an instance
+     *
+     * @param _reboot The reboot type
+     *
+     * @return and observable Instance matching the reboot request
+     */
     public Observable<Instance> reboot(RebootType _reboot) {
-        return new RequestBuilder("/cloud/project/" + project.getId() + "/instance/"+id+"/reboot", Method.POST, project.getCredentials())
+        return new RequestBuilder("/cloud/project/" + project.getId() + "/instance/" + id + "/reboot", Method.POST, project.getCredentials())
                 .body(new JSONObject()
                         .put("type", _reboot.name())
                         .toString()
@@ -279,5 +384,5 @@ public class Instance {
                     return Observable.just(this);
                 });
     }
-    
+
 }

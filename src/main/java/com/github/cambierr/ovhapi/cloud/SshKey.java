@@ -28,7 +28,6 @@ import com.github.cambierr.ovhapi.common.RequestBuilder;
 import com.github.cambierr.ovhapi.common.Response;
 import com.github.cambierr.ovhapi.exception.PartialObjectException;
 import com.github.cambierr.ovhapi.exception.RequestException;
-import java.io.IOException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import rx.Observable;
@@ -57,12 +56,28 @@ public class SshKey {
         fingerPrint = _fingerPrint;
     }
 
+    /**
+     * For internal use only
+     *
+     * @param _project the project to request from
+     * @param _id the key id
+     *
+     * @return a SshKey object
+     */
     protected static SshKey byIdPartial(Project _project, String _id) {
         SshKey temp = new SshKey(_project, _id, null, null, null, null);
         temp.partial = true;
         return temp;
     }
 
+    /**
+     * Lists all SSH keys within the provided project in the specified region (or null if not provided)
+     *
+     * @param _project the project to list keys from
+     * @param _region the region to list keys from
+     *
+     * @return Zero to several observable SshKey objects
+     */
     public static Observable<SshKey> list(Project _project, Region _region) {
         String args = "";
         if (_region != null) {
@@ -85,6 +100,14 @@ public class SshKey {
                 });
     }
 
+    /**
+     * Loads a SSH key by its id
+     *
+     * @param _project the project to load the key from
+     * @param _id the key id
+     *
+     * @return an observable SshKey object
+     */
     public static Observable<SshKey> byId(Project _project, String _id) {
         return new RequestBuilder("/cloud/project/" + _project + "/sshkey/" + _id, Method.GET, _project.getCredentials())
                 .build()
@@ -97,14 +120,31 @@ public class SshKey {
                 });
     }
 
+    /**
+     * Returns this key's id
+     *
+     * @return this key's id
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * Returns this key's region
+     *
+     * @return this key's region
+     */
     public Region getRegion() {
         return region;
     }
 
+    /**
+     * Returns this key's name
+     *
+     * @return this key's name
+     *
+     * @throws PartialObjectException if this object is partially loaded
+     */
     public String getName() {
         if (partial) {
             throw new PartialObjectException();
@@ -112,6 +152,13 @@ public class SshKey {
         return name;
     }
 
+    /**
+     * Returns this key's public key
+     *
+     * @return this key's public key
+     *
+     * @throws PartialObjectException if this object is partially loaded
+     */
     public String getPubKey() {
         if (partial) {
             throw new PartialObjectException();
@@ -119,6 +166,13 @@ public class SshKey {
         return pubKey;
     }
 
+    /**
+     * Returns this key's fingerprint
+     *
+     * @return this key's fingerprint
+     *
+     * @throws PartialObjectException if this object is partially loaded
+     */
     public String getFingerPrint() {
         if (fingerPrint == null) {
             throw new PartialObjectException();
@@ -126,10 +180,20 @@ public class SshKey {
         return fingerPrint;
     }
 
+    /**
+     * Checks if this Flavor is partially loaded or not
+     *
+     * @return true if partially loaded, or false
+     */
     public boolean isPartial() {
         return partial;
     }
 
+    /**
+     * Completes a partial SshKey object
+     *
+     * @return the Observable completed SshKey object
+     */
     public Observable<SshKey> complete() {
         if (!partial) {
             return Observable.just(this);

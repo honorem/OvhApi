@@ -39,7 +39,7 @@ import rx.Subscriber;
  *
  * @author cambierr
  */
-public class Image {
+public class Snapshot {
 
     private String visibility;
     private long creationDate;
@@ -53,7 +53,7 @@ public class Image {
     private boolean partial = false;
     private final Project project;
 
-    private Image(Project _project, String _id, String _visibility, long _creationDate, String _status, Region _region, String _name, String _type, int _minDisk) {
+    private Snapshot(Project _project, String _id, String _visibility, long _creationDate, String _status, Region _region, String _name, String _type, int _minDisk) {
         visibility = _visibility;
         creationDate = _creationDate;
         status = _status;
@@ -69,29 +69,29 @@ public class Image {
      * For internal use only
      *
      * @param _project the project to request from
-     * @param _id the image id
-     * @param _region the region of this image
+     * @param _id the snapshot id
+     * @param _region the region of this snapshot
      *
-     * @return an Image object
+     * @return a Snapshot object
      */
-    protected static Image byId(Project _project, String _id, Region _region) {
-        Image temp = new Image(_project, _id, null, -1, null, _region, null, null, -1);
+    protected static Snapshot byId(Project _project, String _id, Region _region) {
+        Snapshot temp = new Snapshot(_project, _id, null, -1, null, _region, null, null, -1);
         temp.partial = true;
         return temp;
     }
 
     /**
-     * Completes a partial Image object
+     * Completes a partial Snapshot object
      *
-     * @return the Observable completed Image object
+     * @return the Observable completed Snapshot object
      */
-    public Observable<Image> complete() {
+    public Observable<Snapshot> complete() {
         if (!partial) {
             return Observable.just(this);
         }
 
         return byId(project, id)
-                .map((Image t1) -> {
+                .map((Snapshot t1) -> {
                     this.visibility = t1.visibility;
                     this.creationDate = t1.creationDate;
                     this.status = t1.status;
@@ -104,7 +104,7 @@ public class Image {
     }
 
     /**
-     * Checks if this Image is partially loaded or not
+     * Checks if this Snapshot is partially loaded or not
      *
      * @return true if partially loaded, or false
      */
@@ -113,16 +113,15 @@ public class Image {
     }
 
     /**
-     * Lists all images availables in a project and in a region (of provided)
+     * Lists all snapshots availables in a project and in a region (of provided)
      *
-     * @param _project The project to list images of
-     * @param _region The region to list images from (null = all regions)
+     * @param _project The project to list snapshots from
+     * @param _region The region to list snapshots from (null = all regions)
      * @param _flavor The flavor to be compatible with (null = no compatibility requirement)
-     * @param _osType The OS type of the image (null = no requirement)
      *
-     * @return Zero to several observable Image objects
+     * @return Zero to several observable Snapshot objects
      */
-    public static Observable<Image> list(Project _project, Region _region, Flavor _flavor, String _osType) {
+    public static Observable<Snapshot> list(Project _project, Region _region, Flavor _flavor) {
         String args = "";
         if (_region != null) {
             args += "region=" + _region.getName() + "&";
@@ -130,30 +129,27 @@ public class Image {
         if (_flavor != null) {
             args += "flavorType=" + _flavor.getId() + "&";
         }
-        if (_osType != null) {
-            args += "osType=" + _osType + "&";
-        }
 
-        return new RequestBuilder("/cloud/project/" + _project.getId() + "/image?" + args, Method.GET, _project.getCredentials())
+        return new RequestBuilder("/cloud/project/" + _project.getId() + "/snapshot?" + args, Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
                     if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
                         return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
                     }
-                    final JSONArray images = t1.jsonArray();
+                    final JSONArray snapshots = t1.jsonArray();
                     return Observable
-                    .range(0, images.length())
-                    .flatMap((Integer t2) -> Observable.create((Subscriber<? super Image> t3) -> {
+                    .range(0, snapshots.length())
+                    .flatMap((Integer t2) -> Observable.create((Subscriber<? super Snapshot> t3) -> {
                         try {
-                            Image image = new Image(_project,
-                                    images.getJSONObject(t2).getString("id"),
-                                    images.getJSONObject(t2).getString("visibility"),
-                                    OvhApi.dateToTime(images.getJSONObject(t2).getString("creationDate")),
-                                    images.getJSONObject(t2).getString("status"),
-                                    Region.byName(_project, images.getJSONObject(t2).getString("region")),
-                                    images.getJSONObject(t2).getString("name"),
-                                    images.getJSONObject(t2).getString("type"),
-                                    images.getJSONObject(t2).getInt("minDisk")
+                            Snapshot image = new Snapshot(_project,
+                                    snapshots.getJSONObject(t2).getString("id"),
+                                    snapshots.getJSONObject(t2).getString("visibility"),
+                                    OvhApi.dateToTime(snapshots.getJSONObject(t2).getString("creationDate")),
+                                    snapshots.getJSONObject(t2).getString("status"),
+                                    Region.byName(_project, snapshots.getJSONObject(t2).getString("region")),
+                                    snapshots.getJSONObject(t2).getString("name"),
+                                    snapshots.getJSONObject(t2).getString("type"),
+                                    snapshots.getJSONObject(t2).getInt("minDisk")
                             );
                             t3.onNext(image);
                         } catch (ParseException ex) {
@@ -165,15 +161,15 @@ public class Image {
     }
 
     /**
-     * Loads an Image by its id
+     * Loads a Snapshot by its id
      *
-     * @param _project the project to load the Image from
-     * @param _id the Image id
+     * @param _project the project to load the Snapshot from
+     * @param _id the Snapshot id
      *
-     * @return an observable Image object
+     * @return an observable Snapshot object
      */
-    public static Observable<Image> byId(Project _project, String _id) {
-        return new RequestBuilder("/cloud/project/" + _project + "/image/" + _id, Method.GET, _project.getCredentials())
+    public static Observable<Snapshot> byId(Project _project, String _id) {
+        return new RequestBuilder("/cloud/project/" + _project + "/snapshot/" + _id, Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
                     try {
@@ -182,7 +178,7 @@ public class Image {
                         }
                         final JSONObject image = t1.jsonObject();
 
-                        return Observable.just(new Image(_project,
+                        return Observable.just(new Snapshot(_project,
                                         image.getString("id"),
                                         image.getString("visibility"),
                                         OvhApi.dateToTime(image.getString("creationDate")),
@@ -200,9 +196,9 @@ public class Image {
     }
 
     /**
-     * Returns the visibility of this image
+     * Returns the visibility of this snapshot
      *
-     * @return the visibility of this image
+     * @return the visibility of this snapshot
      *
      * @throws PartialObjectException if this object is partially loaded
      */
@@ -214,9 +210,9 @@ public class Image {
     }
 
     /**
-     * Returns the creation date of this image
+     * Returns the creation date of this snapshot
      *
-     * @return the creation date of this image
+     * @return the creation date of this snapshot
      *
      * @throws PartialObjectException if this object is partially loaded
      */
@@ -228,9 +224,9 @@ public class Image {
     }
 
     /**
-     * Returns the status of this image
+     * Returns the status of this snapshot
      *
-     * @return the status of this image
+     * @return the status of this snapshot
      *
      * @throws PartialObjectException if this object is partially loaded
      */
@@ -242,18 +238,18 @@ public class Image {
     }
 
     /**
-     * Returns the region of this image
+     * Returns the region of this snapshot
      *
-     * @return the region of this image
+     * @return the region of this snapshot
      */
     public Region getRegion() {
         return region;
     }
 
     /**
-     * Returns the bame of this image
+     * Returns the bame of this snapshot
      *
-     * @return the name of this image
+     * @return the name of this snapshot
      *
      * @throws PartialObjectException if this object is partially loaded
      */
@@ -265,9 +261,9 @@ public class Image {
     }
 
     /**
-     * Returns the type of this image
+     * Returns the type of this snapshot
      *
-     * @return the type of this image
+     * @return the type of this snapshot
      *
      * @throws PartialObjectException if this object is partially loaded
      */
@@ -279,18 +275,18 @@ public class Image {
     }
 
     /**
-     * Returns the id of this image
+     * Returns the id of this snapshot
      *
-     * @return the id of this image
+     * @return the id of this snapshot
      */
     public String getId() {
         return id;
     }
 
     /**
-     * Returns the disk space requirement of this image
+     * Returns the disk space requirement of this snapshot
      *
-     * @return the disk space requirement of this image
+     * @return the disk space requirement of this snapshot
      *
      * @throws PartialObjectException if this object is partially loaded
      */
@@ -299,6 +295,22 @@ public class Image {
             throw new PartialObjectException();
         }
         return minDisk;
+    }
+
+    /**
+     * Deletes this snapshot object
+     *
+     * @return the observable deleted Snapshot object
+     */
+    public Observable<Snapshot> delete() {
+        return new RequestBuilder("/cloud/project/" + project.getId() + "/snapshot/" + id, Method.DELETE, project.getCredentials())
+                .build()
+                .flatMap((Response t1) -> {
+                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
+                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
+                    }
+                    return Observable.just(this);
+                });
     }
 
 }

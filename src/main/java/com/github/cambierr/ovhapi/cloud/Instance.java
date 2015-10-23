@@ -367,7 +367,7 @@ public class Instance {
      *
      * @param _reboot The reboot type
      *
-     * @return and observable Instance matching the reboot request
+     * @return an observable Instance matching the reboot request
      */
     public Observable<Instance> reboot(RebootType _reboot) {
         return new RequestBuilder("/cloud/project/" + project.getId() + "/instance/" + id + "/reboot", Method.POST, project.getCredentials())
@@ -381,6 +381,28 @@ public class Instance {
                         return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
                     }
                     this.status = Status.REBOOT;
+                    return Observable.just(this);
+                });
+    }
+
+    /**
+     * Creates a Snapshot of this instance
+     *
+     * @param _name the Snapshot name
+     *
+     * @return an observable instance matching the snapshot request
+     */
+    public Observable<Instance> snapshot(String _name) {
+        return new RequestBuilder("/cloud/project/" + project.getId() + "/instance/" + id + "/snapshot", Method.POST, project.getCredentials())
+                .body(new JSONObject()
+                        .put("snapshotName", _name)
+                        .toString()
+                )
+                .build()
+                .flatMap((Response t1) -> {
+                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
+                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
+                    }
                     return Observable.just(this);
                 });
     }

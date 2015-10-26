@@ -173,11 +173,13 @@ public class Image {
      * @return an observable Image object
      */
     public static Observable<Image> byId(Project _project, String _id) {
-        return new RequestBuilder("/cloud/project/" + _project + "/image/" + _id, Method.GET, _project.getCredentials())
+        return new RequestBuilder("/cloud/project/" + _project.getId() + "/image/" + _id, Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
                     try {
                         if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
+                            System.out.println(t1.responseMessage());
+                            System.out.println(t1.body());
                             return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
                         }
                         final JSONObject image = t1.jsonObject();

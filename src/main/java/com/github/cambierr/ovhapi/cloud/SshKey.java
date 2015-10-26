@@ -109,7 +109,7 @@ public class SshKey {
      * @return an observable SshKey object
      */
     public static Observable<SshKey> byId(Project _project, String _id) {
-        return new RequestBuilder("/cloud/project/" + _project + "/sshkey/" + _id, Method.GET, _project.getCredentials())
+        return new RequestBuilder("/cloud/project/" + _project.getId() + "/sshkey/" + _id, Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
                     if (t1.responseCode() < 200 || t1.responseCode() >= 300) {

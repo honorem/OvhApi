@@ -24,10 +24,12 @@
 package com.github.cambierr.ovhapi.cloud;
 
 import com.github.cambierr.ovhapi.common.Method;
+import com.github.cambierr.ovhapi.common.OvhApi;
 import com.github.cambierr.ovhapi.common.RequestBuilder;
 import com.github.cambierr.ovhapi.common.Response;
 import com.github.cambierr.ovhapi.exception.PartialObjectException;
 import com.github.cambierr.ovhapi.exception.RequestException;
+import java.text.ParseException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import rx.Observable;
@@ -58,6 +60,18 @@ public class Storage {
         project = _project;
         staticUrl = _staticUrl;
         isPublic = _isPublic;
+    }
+
+    private Storage(Project _project, String _id, String _name, Region _region, long _storedBytes, long _storedObjects) {
+        region = _region;
+        name = _name;
+        storedBytes = _storedBytes;
+        storedObjects = _storedObjects;
+        id = _id;
+        project = _project;
+        staticUrl = null;
+        isPublic = false;
+        partial = true;
     }
 
     /**
@@ -253,6 +267,36 @@ public class Storage {
                         return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
                     }
                     return Observable.just(this);
+                });
+    }
+
+    /**
+     * Creates a Storage container
+     *
+     * @param _project The project to create the container in
+     * @param _region The region ti ceate the container in
+     * @param _name The name of the new container
+     *
+     * @return an observable Storage container matching the creation request
+     */
+    public static Observable<Storage> create(Project _project, Region _region, String _name) {
+        return new RequestBuilder("/cloud/project/" + _project.getId() + "/storage", Method.POST, _project.getCredentials())
+                .body(new JSONObject()
+                        .put("containerName", _name)
+                        .put("region", _region.getName())
+                        .toString()
+                )
+                .build()
+                .flatMap((Response t1) -> {
+                    try {
+                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
+                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
+                        }
+                        final JSONObject storage = t1.jsonObject();
+                        return Observable.just(new Storage(_project, storage.getString("id"), _name, _region, storage.getLong("storedBytes"), storage.getLong("storedObjects")));
+                    } catch (Exception ex) {
+                        return Observable.error(ex);
+                    }
                 });
     }
 }

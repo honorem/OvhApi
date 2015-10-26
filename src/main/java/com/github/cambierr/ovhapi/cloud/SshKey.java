@@ -240,5 +240,21 @@ public class SshKey {
                     }
                 });
     }
+    
+    /**
+     * Deletes this SshKeyobject
+     *
+     * @return the observable deleted SshKey object
+     */
+    public Observable<SshKey> delete() {
+        return new RequestBuilder("/cloud/project/" + project.getId() + "/sshkey/" + id, Method.DELETE, project.getCredentials())
+                .build()
+                .flatMap((Response t1) -> {
+                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
+                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
+                    }
+                    return Observable.just(this);
+                });
+    }
 
 }

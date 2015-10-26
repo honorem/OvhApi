@@ -55,11 +55,11 @@ List<Project> projects = Project.list(creds).toList().toBlocking().single();
 
 ##List your instances
 ```java
-Region region = Region.byName(creds, "SBG1");
+Region region = Region.byName(project, "SBG1");
 
-List<Instance> instancesAtSBG1 = Instance.list(creds, region).toList().toBlocking().single();
+List<Instance> instancesAtSBG1 = Instance.list(project, region).toList().toBlocking().single();
 
-List<Instance> allInstances = Instance.list(creds, null).toList().toBlocking().single();
+List<Instance> allInstances = Instance.list(project, null).toList().toBlocking().single();
 ```
 
 ##Kill your instances
@@ -73,10 +73,9 @@ for(Instance instance:allInstances){
 ##Do it again, but asynchronously !
 ```java
 Credential.build("applicationKey", "applicationSecret", "consumerKey")
-                .flatMap((Credential t) -> Project.byId(t, "projectId")
-                        .flatMap((Project p) -> Instance.list(p, null))
-                        .flatMap((Instance i) -> i.kill())
-                )
+                .flatMap((Credential t) -> Project.byId(t, "projectId"))
+                .flatMap((Project p) -> Instance.list(p, null))
+                .flatMap((Instance i) -> i.kill())
                 .subscribe();
 ```
 

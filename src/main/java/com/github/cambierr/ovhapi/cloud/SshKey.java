@@ -209,4 +209,36 @@ public class SshKey {
                 });
     }
 
+    /**
+     * Creates a SshKey
+     *
+     * @param _project The project to create the key in
+     * @param _region The region ti ceate the key in
+     * @param _name The name of the new key
+     * @param _key The public key part
+     *
+     * @return an observable SshKeymatching the creation request
+     */
+    public static Observable<SshKey> create(Project _project, Region _region, String _name, String _key) {
+        return new RequestBuilder("/cloud/project/" + _project.getId() + "/sshkey", Method.POST, _project.getCredentials())
+                .body(new JSONObject()
+                        .put("name", _name)
+                        .put("region", (_region == null) ? null : _region.getName())
+                        .put("publicKey", _key)
+                        .toString()
+                )
+                .build()
+                .flatMap((Response t1) -> {
+                    try {
+                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
+                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
+                        }
+                        final JSONObject key = t1.jsonObject();
+                        return Observable.just(new SshKey(_project, key.getString("id"), _region, _name, key.getString("publicKey"), key.getString("fingerPrint")));
+                    } catch (Exception ex) {
+                        return Observable.error(ex);
+                    }
+                });
+    }
+
 }

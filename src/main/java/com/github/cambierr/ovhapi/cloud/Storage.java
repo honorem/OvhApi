@@ -277,7 +277,7 @@ public class Storage {
      * @param _region The region ti ceate the container in
      * @param _name The name of the new container
      *
-     * @return an observable Storage container matching the creationr equest
+     * @return an observable Storage container matching the creation request
      */
     public static Observable<Storage> create(Project _project, Region _region, String _name) {
         return new RequestBuilder("/cloud/project/" + _project.getId() + "/storage", Method.POST, _project.getCredentials())

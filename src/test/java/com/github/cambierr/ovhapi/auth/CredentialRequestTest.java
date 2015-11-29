@@ -5,16 +5,14 @@
  */
 package com.github.cambierr.ovhapi.auth;
 
-import com.github.cambierr.ovhapi.exception.RequestException;
-import java.util.concurrent.CountDownLatch;
+import com.github.cambierr.ovhapi.common.Settings;
+import com.github.cambierr.ovhapi.exception.TokenNotLinkedException;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import rx.Observable;
-import rx.Subscriber;
 
 /**
  *
@@ -22,18 +20,24 @@ import rx.Subscriber;
  */
 public class CredentialRequestTest {
 
-    CredentialRequest credentials;
+    static CredentialRequest credentials;
     
-    String applicationKey = Settings.applicationKey;
-    String applicationSecret = Settings.applicationSecret;
-    String redirection = Settings.redirection;
-    String validationUrl = Settings.validationUrl;
 
     public CredentialRequestTest() {
     }
 
     @BeforeClass
     public static void setUpClass() {
+        AccessRules rules = new AccessRules();
+        rules.addRule("/*");
+        credentials = CredentialRequest.build(Settings.applicationKey, Settings.applicationSecret, rules, Settings.redirection).toBlocking().single();
+        
+        try {
+            System.out.println("ConsumerKey : "+credentials.getCredential().getConsumerKey());
+            System.out.println("ValidationUrl:"+credentials.getValidationUrl());
+        } catch (TokenNotLinkedException ex) {
+            ex.printStackTrace();
+        }
     }
 
     @AfterClass
@@ -42,8 +46,6 @@ public class CredentialRequestTest {
 
     @Before
     public void setUp() {
-        AccessRules rules = new AccessRules();
-        credentials = CredentialRequest.build(applicationKey, applicationSecret, rules, redirection).toBlocking().single();
     }
 
     @After
@@ -56,7 +58,7 @@ public class CredentialRequestTest {
         AccessRules _rules = new AccessRules();
         _rules.addRule("/*");
 
-        CredentialRequest result = CredentialRequest.build(applicationKey, applicationSecret, _rules, redirection).toBlocking().single();
+        CredentialRequest result = CredentialRequest.build(Settings.applicationKey, Settings.applicationSecret, _rules, Settings.redirection).toBlocking().single();
         assertNotNull(result);
     }
 
@@ -66,10 +68,8 @@ public class CredentialRequestTest {
         CredentialRequest instance = credentials;
         String result = instance.getValidationUrl();
         
-        System.out.println(result);
-        
         assertNotNull(result);
-        assertTrue(result.contains(validationUrl));
+        assertTrue(result.contains(Settings.validationUrl));
 
     }
 
@@ -87,8 +87,6 @@ public class CredentialRequestTest {
         System.out.println("getCredential");
         CredentialRequest instance = credentials;
         Credential result = instance.getCredential();
-
-        System.out.println(result.getConsumerKey());
         
         assertNotNull(result);
     }

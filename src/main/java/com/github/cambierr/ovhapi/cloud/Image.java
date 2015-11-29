@@ -173,7 +173,7 @@ public class Image {
      * @return an observable Image object
      */
     public static Observable<Image> byId(Project _project, String _id) {
-        return new RequestBuilder("/cloud/project/" + _project + "/image/" + _id, Method.GET, _project.getCredentials())
+        return new RequestBuilder("/cloud/project/" + _project.getId() + "/image/" + _id, Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
                     try {

@@ -24,10 +24,12 @@
 package com.github.cambierr.ovhapi.common;
 
 import com.github.cambierr.ovhapi.auth.Credential;
-import javax.net.ssl.HttpsURLConnection;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import org.glassfish.jersey.client.rx.RxInvocationBuilder;
+import org.glassfish.jersey.client.rx.rxjava.RxObservable;
+import org.glassfish.jersey.client.rx.rxjava.RxObservableInvoker;
 import rx.Observable;
-import rx.Subscriber;
-import rx.schedulers.Schedulers;
 
 /**
  *
@@ -93,32 +95,28 @@ public class RequestBuilder {
      * @return an observable Resposne object
      */
     public Observable<Response> build() {
-        return Observable.create((Subscriber<? super Response> t1) -> {
-            try {
-                HttpsURLConnection link = OvhApi.getInstance().getBase(path, method);
-                if (credentials != null) {
-                    credentials.sign(link, body);
-                } else if (applicationKey != null) {
-                    link.addRequestProperty("X-Ovh-Application", this.applicationKey);
-                }
-                link.setDoOutput(true);
-                link.addRequestProperty("User-Agent", userAgent);
-                if (body != null) {
-                    link.addRequestProperty("Content-type", "application/json");
-                    link.getOutputStream().write(body.getBytes());
-                }
-                t1.onNext(new Response(
-                        link.getResponseCode(),
-                        link.getResponseMessage(),
-                        (link.getErrorStream() == null) ? link.getInputStream() : link.getErrorStream())
-                );
-                link.disconnect();
+        RxInvocationBuilder<RxObservableInvoker> builder = RxObservable
+                .newClient()
+                .target("https://" + OvhApi.API_ENDPOINT + "/" + OvhApi.API_VERSION + path)
+                .request();
 
-            } catch (Throwable t) {
-                t1.onError(t);
-            }
-            t1.onCompleted();
-        }).subscribeOn(Schedulers.io());
+        if (credentials != null) {
+            credentials.sign(builder, path, method, body);
+        } else if (applicationKey != null) {
+            builder.header("X-Ovh-Application", this.applicationKey);
+        }
+        builder.header("User-Agent", userAgent);
+
+        switch (method) {
+            case GET:
+            case DELETE:
+                return builder.rx().method(method.name());
+            case POST:
+            case PUT:
+                return (body == null) ? builder.rx().method(method.name()) : builder.rx().method(method.name(), Entity.json(body));
+            default:
+                return null;
+        }
     }
 
 }

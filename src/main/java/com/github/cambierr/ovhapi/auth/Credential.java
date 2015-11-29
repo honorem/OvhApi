@@ -23,11 +23,14 @@
  */
 package com.github.cambierr.ovhapi.auth;
 
+import com.github.cambierr.ovhapi.common.Method;
 import com.github.cambierr.ovhapi.exception.InvalidConsumerKeyException;
 import com.github.cambierr.ovhapi.exception.UnclaimedConsumerKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import javax.net.ssl.HttpsURLConnection;
+import org.glassfish.jersey.client.rx.RxInvocationBuilder;
+import org.glassfish.jersey.client.rx.rxjava.RxObservableInvoker;
 import rx.Observable;
 import rx.Subscriber;
 
@@ -48,7 +51,8 @@ public class Credential {
     }
 
     /**
-     *  Creates a credential object
+     * Creates a credential object
+     *
      * @param _applicationKey the OVH API application key
      * @param _applicationSecret the OVH API application secret
      * @param _consumerKey the OVH API consumer key
@@ -72,30 +76,34 @@ public class Credential {
     /**
      * Signs an API request
      *
-     * @param _link the API request
+     * @param _builder the RxInvocationBuilder containing the request
+     * @param _link the API request path
+     * @param _method the API request method
      * @param _body the request body (if any)
-     *
-     * @throws NoSuchAlgorithmException if the diggest algorithm (SHA1) is missing in the JVM
      */
-    public void sign(HttpsURLConnection _link, String _body) throws NoSuchAlgorithmException {
+    public void sign(RxInvocationBuilder<RxObservableInvoker> _builder, String _link, Method _method, String _body){
         long time = System.currentTimeMillis() / 1000;
 
         String preHash = this.applicationSecret
                 + "+" + this.consumerKey
-                + "+" + _link.getRequestMethod()
-                + "+" + _link.getURL()
+                + "+" + _method.name()
+                + "+" + _link
                 + "+" + ((_body == null) ? "" : _body)
                 + "+" + time;
 
-        _link.addRequestProperty("X-Ovh-Timestamp", Long.toString(time));
-        _link.addRequestProperty("X-Ovh-Signature", "$1$"+toSHA1(preHash));
-        _link.addRequestProperty("X-Ovh-Application", this.applicationKey);
-        _link.addRequestProperty("X-Ovh-Consumer", this.consumerKey);
+        _builder.header("X-Ovh-Timestamp", Long.toString(time));
+        _builder.header("X-Ovh-Signature", "$1$" + toSHA1(preHash));
+        _builder.header("X-Ovh-Application", this.applicationKey);
+        _builder.header("X-Ovh-Consumer", this.consumerKey);
     }
 
-    private String toSHA1(String _preHash) throws NoSuchAlgorithmException {
-        MessageDigest md = MessageDigest.getInstance("SHA-1");
-        return bytesToHex(md.digest(_preHash.getBytes()));
+    private String toSHA1(String _preHash){
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-1");
+            return bytesToHex(md.digest(_preHash.getBytes()));
+        } catch (NoSuchAlgorithmException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     private String bytesToHex(byte[] _bytes) {
@@ -120,8 +128,8 @@ public class Credential {
          * @pending: waiting for ovh
          */
     }
-    
-    public String getConsumerKey(){
+
+    public String getConsumerKey() {
         return this.consumerKey;
     }
 

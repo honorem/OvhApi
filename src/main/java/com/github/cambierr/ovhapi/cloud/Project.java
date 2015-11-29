@@ -27,16 +27,13 @@ import com.github.cambierr.ovhapi.auth.Credential;
 import com.github.cambierr.ovhapi.common.Method;
 import com.github.cambierr.ovhapi.common.OvhApi;
 import com.github.cambierr.ovhapi.common.RequestBuilder;
-import com.github.cambierr.ovhapi.common.Response;
 import com.github.cambierr.ovhapi.exception.PartialObjectException;
 import com.github.cambierr.ovhapi.exception.RequestException;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
+import javax.ws.rs.core.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import rx.Observable;
@@ -179,10 +176,10 @@ public class Project {
                 .build()
                 .flatMap((Response t1) -> {
                     try {
-                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
+                        if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
+                            return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
                         }
-                        JSONObject project = t1.jsonObject();
+                        JSONObject project = new JSONObject(t1.readEntity(String.class));
                         Project p = new Project(_credentials,
                                 project.getString("project_id"),
                                 project.getString("status"),
@@ -208,10 +205,10 @@ public class Project {
         return new RequestBuilder("/cloud/project", Method.GET, _credentials)
                 .build()
                 .flatMap((Response t1) -> {
-                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
+                    if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
                     }
-                    JSONArray resp = t1.jsonArray();
+                    JSONArray resp = new JSONArray(t1.readEntity(String.class));
                     return Observable.range(0, resp.length()).map((Integer t) -> new Project(_credentials, resp.getString(t)));
                 });
     }
@@ -233,8 +230,8 @@ public class Project {
                 .body(new JSONObject().put("description", _description).toString())
                 .build()
                 .flatMap((Response t1) -> {
-                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
+                    if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
                     }
                     return Observable.just(_setDescription(_description));
                 });
@@ -258,10 +255,10 @@ public class Project {
         return new RequestBuilder("/cloud/project/" + this.id + "/consumption" + args, Method.GET, credentials)
                 .build()
                 .flatMap((Response t1) -> {
-                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
+                    if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
                     }
-                    JSONObject output = t1.jsonObject();
+                    JSONObject output = new JSONObject(t1.readEntity(String.class));
                     return Observable.just(new Consumption(output));
                 });
     }

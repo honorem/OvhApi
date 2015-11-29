@@ -26,9 +26,9 @@ package com.github.cambierr.ovhapi.cloud;
 import com.github.cambierr.ovhapi.common.Method;
 import com.github.cambierr.ovhapi.common.OvhApi;
 import com.github.cambierr.ovhapi.common.RequestBuilder;
-import com.github.cambierr.ovhapi.common.Response;
 import com.github.cambierr.ovhapi.exception.RequestException;
 import java.text.ParseException;
+import javax.ws.rs.core.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import rx.Observable;
@@ -74,10 +74,10 @@ public class Instance {
         return new RequestBuilder("/cloud/project/" + _project.getId() + "/instance?region=" + ((_region == null) ? "" : _region.getName()), Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
-                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
+                    if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
                     }
-                    final JSONArray instances = t1.jsonArray();
+                    final JSONArray instances = new JSONArray(t1.readEntity(String.class));
                     return Observable.range(0, instances.length())
                     .flatMap((Integer t2) -> {
                         JSONObject instance = instances.getJSONObject(t2);
@@ -103,10 +103,10 @@ public class Instance {
                 .build()
                 .flatMap((Response t1) -> {
                     try {
-                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
+                        if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
+                            return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
                         }
-                        final JSONObject instance = t1.jsonObject();
+                        final JSONObject instance = new JSONObject(t1.readEntity(String.class));
                         return Observable.just(new Instance(_project, Status.valueOf(instance.getString("status")), Region.byName(_project, instance.getString("region")), instance.getString("name"), Image.byId(_project, instance.getString("imageId"), Region.byName(_project, instance.getString("region"))), OvhApi.dateToTime(instance.getString("created")), Flavor.byId(_project, instance.getString("flavorId"), Region.byName(_project, instance.getString("region"))), SshKey.byIdPartial(_project, instance.getString("sshKeyId")), instance.getString("id")));
                     } catch (ParseException ex) {
                         return Observable.error(ex);
@@ -229,8 +229,8 @@ public class Instance {
         return new RequestBuilder("/cloud/project/" + project.getId() + "/instance/" + id, Method.DELETE, project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
-                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
+                    if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
                     }
                     return Observable.just(this);
                 });
@@ -261,10 +261,10 @@ public class Instance {
                 .build()
                 .flatMap((Response t1) -> {
                     try {
-                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
+                        if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
+                            return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
                         }
-                        final JSONObject instance = t1.jsonObject();
+                        final JSONObject instance = new JSONObject(t1.readEntity(String.class));
                         return Observable.just(new Instance(_project, Status.valueOf(instance.getString("status")), Region.byName(_project, instance.getString("region")), instance.getString("name"), Image.byId(_project, instance.getString("imageId"), Region.byName(_project, instance.getString("region"))), OvhApi.dateToTime(instance.getString("created")), Flavor.byId(_project, instance.getString("flavorId"), Region.byName(_project, instance.getString("region"))), SshKey.byIdPartial(_project, instance.getString("sshKeyId")), instance.getString("id")));
                     } catch (ParseException ex) {
                         return Observable.error(ex);
@@ -287,10 +287,10 @@ public class Instance {
                 )
                 .build()
                 .flatMap((Response t1) -> {
-                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
+                    if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
                     }
-                    final JSONObject instance = t1.jsonObject();
+                    final JSONObject instance = new JSONObject(t1.readEntity(String.class));
                     this.flavor = _flavor;
                     this.status = Status.valueOf(instance.getString("status"));
                     return Observable.just(this);
@@ -312,10 +312,10 @@ public class Instance {
                 )
                 .build()
                 .flatMap((Response t1) -> {
-                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
+                    if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
                     }
-                    final JSONObject instance = t1.jsonObject();
+                    final JSONObject instance = new JSONObject(t1.readEntity(String.class));
                     this.image = _image;
                     this.status = Status.valueOf(instance.getString("status"));
                     return Observable.just(this);
@@ -337,10 +337,9 @@ public class Instance {
                 )
                 .build()
                 .flatMap((Response t1) -> {
-                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
+                    if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
                     }
-                    final JSONObject instance = t1.jsonObject();
                     this.name = _name;
                     return Observable.just(this);
                 });
@@ -377,8 +376,8 @@ public class Instance {
                 )
                 .build()
                 .flatMap((Response t1) -> {
-                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
+                    if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
                     }
                     this.status = Status.REBOOT;
                     return Observable.just(this);
@@ -400,8 +399,8 @@ public class Instance {
                 )
                 .build()
                 .flatMap((Response t1) -> {
-                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
+                    if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
                     }
                     return Observable.just(this);
                 });

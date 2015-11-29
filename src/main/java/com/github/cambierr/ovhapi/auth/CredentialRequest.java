@@ -25,9 +25,9 @@ package com.github.cambierr.ovhapi.auth;
 
 import com.github.cambierr.ovhapi.common.Method;
 import com.github.cambierr.ovhapi.common.RequestBuilder;
-import com.github.cambierr.ovhapi.common.Response;
 import com.github.cambierr.ovhapi.exception.RequestException;
 import com.github.cambierr.ovhapi.exception.TokenNotLinkedException;
+import javax.ws.rs.core.Response;
 import org.json.JSONObject;
 import rx.Observable;
 
@@ -56,10 +56,10 @@ public class CredentialRequest {
                 .body(new JSONObject().put("redirection", _redirection).put("accessRules", _rules.toJson()).toString())
                 .build()
                 .flatMap((Response t1) -> {
-                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
+                    if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
                     }
-                    JSONObject token = t1.jsonObject();
+                    JSONObject token = new JSONObject(t1.readEntity(String.class));
                     return Observable.just(new CredentialRequest(_applicationKey, _applicationSecret, token.getString("consumerKey"), token.getString("validationUrl")));
                 });
     }

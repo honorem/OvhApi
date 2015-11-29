@@ -25,9 +25,9 @@ package com.github.cambierr.ovhapi.cloud;
 
 import com.github.cambierr.ovhapi.common.Method;
 import com.github.cambierr.ovhapi.common.RequestBuilder;
-import com.github.cambierr.ovhapi.common.Response;
 import com.github.cambierr.ovhapi.exception.PartialObjectException;
 import com.github.cambierr.ovhapi.exception.RequestException;
+import javax.ws.rs.core.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import rx.Observable;
@@ -87,10 +87,10 @@ public class SshKey {
         return new RequestBuilder("/cloud/project/" + _project.getId() + "/sshkey?" + args, Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
-                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
+                    if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
                     }
-                    final JSONArray keys = t1.jsonArray();
+                    final JSONArray keys = new JSONArray(t1.readEntity(String.class));
                     return Observable
                     .range(0, keys.length())
                     .map((Integer t2) -> {
@@ -112,10 +112,10 @@ public class SshKey {
         return new RequestBuilder("/cloud/project/" + _project + "/sshkey/" + _id, Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
-                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
+                    if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
                     }
-                    final JSONObject key = t1.jsonObject();
+                    final JSONObject key = new JSONObject(t1.readEntity(String.class));
                     return Observable.just(new SshKey(_project, key.getString("id"), Region.byName(_project, key.getJSONArray("regions").getString(0)), key.getString("name"), key.getString("publicKey"), key.getString("fingerPrint")));
                 });
     }
@@ -230,17 +230,17 @@ public class SshKey {
                 .build()
                 .flatMap((Response t1) -> {
                     try {
-                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
+                        if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
+                            return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
                         }
-                        final JSONObject key = t1.jsonObject();
+                        final JSONObject key = new JSONObject(t1.readEntity(String.class));
                         return Observable.just(new SshKey(_project, key.getString("id"), _region, _name, key.getString("publicKey"), key.getString("fingerPrint")));
                     } catch (Exception ex) {
                         return Observable.error(ex);
                     }
                 });
     }
-    
+
     /**
      * Deletes this SshKeyobject
      *
@@ -250,8 +250,8 @@ public class SshKey {
         return new RequestBuilder("/cloud/project/" + project.getId() + "/sshkey/" + id, Method.DELETE, project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
-                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
+                    if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
                     }
                     return Observable.just(this);
                 });

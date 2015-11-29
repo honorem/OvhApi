@@ -24,12 +24,10 @@
 package com.github.cambierr.ovhapi.cloud;
 
 import com.github.cambierr.ovhapi.common.Method;
-import com.github.cambierr.ovhapi.common.OvhApi;
 import com.github.cambierr.ovhapi.common.RequestBuilder;
-import com.github.cambierr.ovhapi.common.Response;
 import com.github.cambierr.ovhapi.exception.PartialObjectException;
 import com.github.cambierr.ovhapi.exception.RequestException;
-import java.text.ParseException;
+import javax.ws.rs.core.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import rx.Observable;
@@ -85,10 +83,10 @@ public class Storage {
         return new RequestBuilder("/cloud/project/" + _project.getId() + "/storage", Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
-                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
+                    if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
                     }
-                    final JSONArray containers = t1.jsonArray();
+                    final JSONArray containers = new JSONArray(t1.readEntity(String.class));
                     return Observable
                     .range(0, containers.length())
                     .map((Integer t2) -> {
@@ -112,10 +110,10 @@ public class Storage {
         return new RequestBuilder("/cloud/project/" + _project.getId() + "/storage/" + _id, Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
-                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
+                    if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
                     }
-                    final JSONObject container = t1.jsonObject();
+                    final JSONObject container = new JSONObject(t1.readEntity(String.class));
                     return Observable.just(new Storage(_project, container.getString("id"), container.getString("name"), Region.byName(_project, container.getString("region")), container.getLong("storedBytes"), container.getLong("storedObjects"), container.getString("staticUrl"), container.getBoolean("public")));
                 });
     }
@@ -241,8 +239,8 @@ public class Storage {
         return new RequestBuilder("/cloud/project/" + project.getId() + "/storage/" + id, Method.DELETE, project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
-                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
+                    if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
                     }
                     return Observable.just(this);
                 });
@@ -263,8 +261,8 @@ public class Storage {
                 )
                 .build()
                 .flatMap((Response t1) -> {
-                    if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                        return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
+                    if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
                     }
                     return Observable.just(this);
                 });
@@ -289,10 +287,10 @@ public class Storage {
                 .build()
                 .flatMap((Response t1) -> {
                     try {
-                        if (t1.responseCode() < 200 || t1.responseCode() >= 300) {
-                            return Observable.error(new RequestException(t1.responseCode(), t1.responseMessage(), t1.body()));
+                        if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
+                            return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
                         }
-                        final JSONObject storage = t1.jsonObject();
+                        final JSONObject storage = new JSONObject(t1.readEntity(String.class));
                         return Observable.just(new Storage(_project, storage.getString("id"), _name, _region, storage.getLong("storedBytes"), storage.getLong("storedObjects")));
                     } catch (Exception ex) {
                         return Observable.error(ex);

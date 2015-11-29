@@ -169,7 +169,7 @@ public class Snapshot {
      * @return an observable Snapshot object
      */
     public static Observable<Snapshot> byId(Project _project, String _id) {
-        return new RequestBuilder("/cloud/project/" + _project + "/snapshot/" + _id, Method.GET, _project.getCredentials())
+        return new RequestBuilder("/cloud/project/" + _project.getId() + "/snapshot/" + _id, Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
                     try {

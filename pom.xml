@@ -21,12 +21,35 @@
         <url>https://github.com/cambierr/OvhApi.git</url>
     </scm>
     
+    <developers>
+        <developer>
+            <id>cambierr</id>
+            <name>Romain Cambier</name>
+            <email>me@romaincambier.be</email>
+            <url>https://github.com/cambierr</url>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+        </developer>
+    </developers>
+    
     <dependencies>
         
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20141113</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.ext.rx</groupId>
+            <artifactId>jersey-rx-client-java8</artifactId>
+            <version>2.22.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.ext.rx</groupId>
+            <artifactId>jersey-rx-client-rxjava</artifactId>
+            <version>2.22.1</version>
         </dependency>
         <dependency>
             <groupId>io.reactivex</groupId>
@@ -38,6 +61,11 @@
             <artifactId>junit</artifactId>
             <version>4.10</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>2.22.1</version>
         </dependency>
     </dependencies>
     
@@ -60,6 +88,32 @@
     
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.4</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.3</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>

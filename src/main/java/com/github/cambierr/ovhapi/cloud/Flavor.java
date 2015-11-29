@@ -118,7 +118,7 @@ public class Flavor {
      * @return Zero to several observable Flavor objects
      */
     public static Observable<Flavor> list(Project _project, Region _region) {
-        return new RequestBuilder("/cloud/project/" + _project + "/flavor?region=" + ((_region != null) ? _region.getName() : ""), Method.GET, _project.getCredentials())
+        return new RequestBuilder("/cloud/project/" + _project.getId() + "/flavor?region=" + ((_region != null) ? _region.getName() : ""), Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((Response t1) -> {
                     if (t1.getStatus() < 200 || t1.getStatus() >= 300) {

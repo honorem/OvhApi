@@ -5,6 +5,7 @@
  */
 package com.github.cambierr.ovhapi.auth;
 
+import com.github.cambierr.ovhapi.common.Settings;
 import java.io.IOException;
 import java.net.URL;
 import java.security.MessageDigest;
@@ -69,9 +70,7 @@ public class CredentialTest {
         instance.sign(_link, _body);
         
         Map<String, List<String>> requestProperties = _link.getRequestProperties();
-        MessageDigest md = MessageDigest.getInstance("SHA-1"); 
-        
-        
+   
         
         assertNotNull(requestProperties.get("X-Ovh-Timestamp"));
         assertNotNull(requestProperties.get("X-Ovh-Application"));
@@ -86,7 +85,7 @@ public class CredentialTest {
         String sha1;
         boolean test = false;
         for(int i = 0 ; i < 3; i++){
-            sha1 = getSign(_link, time - i, _body);
+            sha1 = "$1$"+getSign(_link, time - i, _body);
             if(sha1.equals(linkSha1)){
                 test = true;
                 break;

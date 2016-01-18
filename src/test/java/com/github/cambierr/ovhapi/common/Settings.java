@@ -10,11 +10,11 @@ package com.github.cambierr.ovhapi.common;
  * @author honorem
  */
 public class Settings {
-    public static String credentialToken = "VPVeLMqfxv70wB5AhmCRyiNm4Fdmw03zi5TJkHQONZGRTm0cb75HB3rQYLWWQTM0";
-    public static String consumerKey = "yrrni6fSLBHrLJ5u2WSUVP3LDSJi2xEK";
+    public static String credentialToken = "";
+    public static String consumerKey = "";
     
-    public static String applicationKey = "s5y9zFUNXIJqKIl1";
-    public static String applicationSecret = "0Egnnx62AHCiRZcPkGjVfdEM3cs1FzS3";
+    public static String applicationKey = "";
+    public static String applicationSecret = "";
     public static String redirection = "http://example.com";
     public static String validationUrl = "https://eu.api.ovh.com/auth/?credentialToken=";
     
@@ -35,6 +35,9 @@ public class Settings {
     public static String defaultFlavorOsType = "linux";
     public static int defaultFlavorRam = 2000;
     
+    public static String defaultImageId = "3bda2a66-5c24-4b1d-b850-83333b580674";
+    
+    public static String publicKey = "";
     
     
 }

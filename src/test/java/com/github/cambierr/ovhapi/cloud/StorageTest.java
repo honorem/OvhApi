@@ -26,6 +26,7 @@ import rx.Observable;
 public class StorageTest {
     
     static Project project;
+    static Storage storage;
     
     public StorageTest() {
     }
@@ -38,6 +39,9 @@ public class StorageTest {
         credential = Credential.build(Settings.applicationKey, Settings.applicationSecret, Settings.consumerKey).toBlocking().single();
 
         project = Project.byId(credential, Settings.projectId).toBlocking().single();
+        
+        storage = Storage.byId(project, Settings.defaultStorageId).toBlocking().single();
+        
     }
     
     @AfterClass
@@ -62,9 +66,8 @@ public class StorageTest {
         List<Storage> result = Storage.list(_project).toList().toBlocking().single();
         assertNotNull(result);
         
-        System.out.println(result);
-        // TODO review the generated test code and remove the default call to fail.
-        //fail("The test case is a prototype.");
+        assertNotNull(result.get(0));
+        assertEquals(result.get(0).getClass(), Storage.class);
     }
 
     /**
@@ -74,12 +77,12 @@ public class StorageTest {
     public void testById() {
         System.out.println("byId");
         Project _project = project;
-        String _id = "";
-        Observable<Storage> expResult = null;
-        Observable<Storage> result = Storage.byId(_project, _id);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        String _id = Settings.defaultStorageId;
+
+        Storage result = Storage.byId(_project, _id).toBlocking().single();
+        assertNotNull(result);
+
+        
     }
 
     /**
@@ -88,12 +91,11 @@ public class StorageTest {
     @Test
     public void testGetRegion() {
         System.out.println("getRegion");
-        Storage instance = null;
-        Region expResult = null;
+        Storage instance = storage;
+        String expResult = Settings.defaultStorageRegion;
         Region result = instance.getRegion();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertEquals(expResult, result.getName());
+
     }
 
     /**
@@ -102,12 +104,10 @@ public class StorageTest {
     @Test
     public void testGetName() {
         System.out.println("getName");
-        Storage instance = null;
-        String expResult = "";
+        Storage instance = storage;
+        String expResult = Settings.defaultStorageName;
         String result = instance.getName();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**

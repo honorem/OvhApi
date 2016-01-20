@@ -5,7 +5,11 @@
  */
 package com.github.cambierr.ovhapi.auth;
 
+import com.github.cambierr.ovhapi.common.Method;
+import com.github.cambierr.ovhapi.common.OvhApi;
 import com.github.cambierr.ovhapi.common.Settings;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.request.HttpRequest;
 import java.io.IOException;
 import java.net.URL;
 import java.security.MessageDigest;
@@ -27,29 +31,29 @@ import rx.Observable;
  * @author honorem
  */
 public class CredentialTest {
-    
+
     String applicationKey = Settings.applicationKey;
     String applicationSecret = Settings.applicationSecret;
     String consumerKey = Settings.consumerKey;
-    
+
     Credential credential;
-    
+
     public CredentialTest() {
     }
-    
+
     @BeforeClass
     public static void setUpClass() {
     }
-    
+
     @AfterClass
     public static void tearDownClass() {
     }
-    
+
     @Before
     public void setUp() {
         credential = Credential.build(applicationKey, applicationSecret, consumerKey).toBlocking().single();
     }
-    
+
     @After
     public void tearDown() {
     }
@@ -64,34 +68,36 @@ public class CredentialTest {
     @Test
     public void testSign() throws Exception {
         System.out.println("sign");
-        HttpsURLConnection _link = (HttpsURLConnection) new URL("https://example.com").openConnection();
+        //HttpsURLConnection _link = (HttpsURLConnection) new URL("https://example.com").openConnection();
         String _body = "testSignWithBody";
         Credential instance = credential;
-        //instance.sign(_link, _body);
-        
-        Map<String, List<String>> requestProperties = _link.getRequestProperties();
-   
-        
+
+        HttpRequest request = Unirest.get("https://example.com");
+
+        instance.sign(request, Method.GET, _body);
+
+        Map<String, List<String>> requestProperties = request.getHeaders();
+
         assertNotNull(requestProperties.get("X-Ovh-Timestamp"));
         assertNotNull(requestProperties.get("X-Ovh-Application"));
         assertNotNull(requestProperties.get("X-Ovh-Consumer"));
         assertNotNull(requestProperties.get("X-Ovh-Signature"));
-        
+
         assertEquals(requestProperties.get("X-Ovh-Consumer").get(0), consumerKey);
-        
-        Long time = System.currentTimeMillis()/1000;
-        
+
+        Long time = System.currentTimeMillis() / 1000;
+
         String linkSha1 = requestProperties.get("X-Ovh-Signature").get(0);
         String sha1;
         boolean test = false;
-        for(int i = 0 ; i < 3; i++){
-            sha1 = "$1$"+getSign(_link, time - i, _body);
-            if(sha1.equals(linkSha1)){
+        for (int i = 0; i < 3; i++) {
+            sha1 = "$1$" + getSign(request, time - i, _body);
+            if (sha1.equals(linkSha1)) {
                 test = true;
                 break;
             }
         }
-        assertTrue("Sha1 was not correct after 3 trials.", test);        
+        assertTrue("Sha1 was not correct after 3 trials.", test);
     }
 
     @Test
@@ -107,25 +113,24 @@ public class CredentialTest {
         Credential instance = credential;
         String expResult = consumerKey;
         String result = instance.getConsumerKey();
-        
+
         assertEquals(expResult, result);
-        
+
     }
-    
-    
-    private String getSign(HttpsURLConnection _link, Long time, String _body) throws Exception{
-        
+
+    private String getSign(HttpRequest _link, Long time, String _body) throws Exception {
+
         MessageDigest md = MessageDigest.getInstance("SHA-1");
         String preHash = this.applicationSecret
                 + "+" + this.consumerKey
-                + "+" + _link.getRequestMethod()
-                + "+" + _link.getURL()
+                + "+" + _link.getHttpMethod().toString()
+                + "+" + _link.getUrl()
                 + "+" + ((_body == null) ? "" : _body)
                 + "+" + time;
-        
-        
+
         return bytesToHex(md.digest(preHash.getBytes()));
     }
+
     private String bytesToHex(byte[] _bytes) {
         String result = "";
         for (int i = 0; i < _bytes.length; i++) {

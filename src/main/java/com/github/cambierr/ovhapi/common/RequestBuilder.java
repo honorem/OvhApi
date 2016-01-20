@@ -29,6 +29,7 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.request.HttpRequest;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 /**
  *
@@ -120,7 +121,7 @@ public class RequestBuilder {
         }
         req.header("User-Agent", userAgent);
 
-        return Observable.from(req.asJsonAsync());
+        return Observable.from(req.asJsonAsync(), Schedulers.io());
     }
 
 }

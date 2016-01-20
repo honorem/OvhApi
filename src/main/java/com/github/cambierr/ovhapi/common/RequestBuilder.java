@@ -25,7 +25,6 @@ package com.github.cambierr.ovhapi.common;
 
 import com.github.cambierr.ovhapi.auth.Credential;
 import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.request.HttpRequest;
 import rx.Observable;
@@ -94,7 +93,7 @@ public class RequestBuilder {
      *
      * @return an observable Resposne object
      */
-    public Observable<HttpResponse<JsonNode>> build() {
+    public Observable<SafeResponse> build() {
         String completePath = "https://" + OvhApi.API_ENDPOINT + "/" + OvhApi.API_VERSION + path;
         HttpRequest req = null;
         switch (method) {
@@ -121,7 +120,7 @@ public class RequestBuilder {
         }
         req.header("User-Agent", userAgent);
 
-        return Observable.from(req.asJsonAsync(), Schedulers.io());
+        return Observable.from(req.asStringAsync(), Schedulers.io()).map((HttpResponse<String> t) -> new SafeResponse(t));
     }
 
 }

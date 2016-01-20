@@ -27,7 +27,8 @@ import com.github.cambierr.ovhapi.common.Method;
 import com.github.cambierr.ovhapi.common.RequestBuilder;
 import com.github.cambierr.ovhapi.exception.RequestException;
 import com.github.cambierr.ovhapi.exception.TokenNotLinkedException;
-import javax.ws.rs.core.Response;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
 import org.json.JSONObject;
 import rx.Observable;
 
@@ -45,21 +46,23 @@ public class CredentialRequest {
 
     /**
      * Creates a credential request to get a CK
+     *
      * @param _applicationKey the OVH API application key
      * @param _applicationSecret the OVH API application secret
      * @param _rules the list of rules to be granted by the CK
      * @param _redirection the redirection url for after-connection
+     *
      * @return an Observable CredentialRequest
      */
     public static Observable<CredentialRequest> build(String _applicationKey, String _applicationSecret, AccessRules _rules, String _redirection) {
         return new RequestBuilder("/auth/credential", Method.POST, _applicationKey)
                 .body(new JSONObject().put("redirection", _redirection).put("accessRules", _rules.toJson()).toString())
                 .build()
-                .flatMap((Response t1) -> {
-                    if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
-                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
+                .flatMap((HttpResponse<JsonNode> t1) -> {
+                    if (t1.getStatus() < 200 || t1.getStatus() >= 300 || t1.getBody().isArray()) {
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusText(), t1.getBody().toString()));
                     }
-                    JSONObject token = new JSONObject(t1.readEntity(String.class));
+                    JSONObject token = t1.getBody().getObject();
                     return Observable.just(new CredentialRequest(_applicationKey, _applicationSecret, token.getString("consumerKey"), token.getString("validationUrl")));
                 });
     }
@@ -74,16 +77,19 @@ public class CredentialRequest {
 
     /**
      * Returns the validation url associated with this request
+     *
      * @return the validation url
      */
     public String getValidationUrl() {
         return validationUrl;
     }
+
     /**
      * Checks if this request (and its CK) has been linked to an user account
-     *  
-     * <p><strong>Currently, this method isn't implemented yet and will always return true.</strong></p>
-     * 
+     *
+     * <p>
+     * <strong>Currently, this method isn't implemented yet and will always return true.</strong></p>
+     *
      * @return true if linked, or false
      */
     public boolean isLinked() {
@@ -97,11 +103,14 @@ public class CredentialRequest {
 
         return linked;
     }
-/**
- * Returns the Credential object matching this request if CK has been linked, or throws an exception
- * @return the credential object matching this request
- * @throws TokenNotLinkedException if this request (its CK) hasn't been linked to an user
- */
+
+    /**
+     * Returns the Credential object matching this request if CK has been linked, or throws an exception
+     *
+     * @return the credential object matching this request
+     *
+     * @throws TokenNotLinkedException if this request (its CK) hasn't been linked to an user
+     */
     public Credential getCredential() throws TokenNotLinkedException {
         if (!isLinked()) {
             throw new TokenNotLinkedException();

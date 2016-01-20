@@ -24,11 +24,10 @@
 package com.github.cambierr.ovhapi.common;
 
 import com.github.cambierr.ovhapi.auth.Credential;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-import org.glassfish.jersey.client.rx.RxInvocationBuilder;
-import org.glassfish.jersey.client.rx.rxjava.RxObservable;
-import org.glassfish.jersey.client.rx.rxjava.RxObservableInvoker;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.request.HttpRequest;
 import rx.Observable;
 
 /**
@@ -94,29 +93,34 @@ public class RequestBuilder {
      *
      * @return an observable Resposne object
      */
-    public Observable<Response> build() {
-        RxInvocationBuilder<RxObservableInvoker> builder = RxObservable
-                .newClient()
-                .target("https://" + OvhApi.API_ENDPOINT + "/" + OvhApi.API_VERSION + path)
-                .request();
-
-        if (credentials != null) {
-            credentials.sign(builder, path, method, body);
-        } else if (applicationKey != null) {
-            builder.header("X-Ovh-Application", this.applicationKey);
-        }
-        builder.header("User-Agent", userAgent);
-
+    public Observable<HttpResponse<JsonNode>> build() {
+        String completePath = "https://" + OvhApi.API_ENDPOINT + "/" + OvhApi.API_VERSION + path;
+        HttpRequest req = null;
         switch (method) {
             case GET:
+                req = Unirest.get(completePath);
+                break;
             case DELETE:
-                return builder.rx().method(method.name());
+                req = Unirest.delete(completePath);
+                break;
             case POST:
+                req = ((body == null) ? Unirest.post(completePath) : Unirest.post(completePath).body(body)).getHttpRequest();
+                break;
             case PUT:
-                return (body == null) ? builder.rx().method(method.name()) : builder.rx().method(method.name(), Entity.json(body));
+                req = ((body == null) ? Unirest.put(completePath) : Unirest.post(completePath).body(body)).getHttpRequest();
+                break;
             default:
-                return null;
+                throw new RuntimeException("wrong method received");
         }
+
+        if (credentials != null) {
+            credentials.sign(req, path, method, body);
+        } else if (applicationKey != null) {
+            req.header("X-Ovh-Application", this.applicationKey);
+        }
+        req.header("User-Agent", userAgent);
+
+        return Observable.from(req.asJsonAsync());
     }
 
 }

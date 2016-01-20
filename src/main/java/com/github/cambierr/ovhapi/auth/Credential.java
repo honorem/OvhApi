@@ -26,11 +26,9 @@ package com.github.cambierr.ovhapi.auth;
 import com.github.cambierr.ovhapi.common.Method;
 import com.github.cambierr.ovhapi.exception.InvalidConsumerKeyException;
 import com.github.cambierr.ovhapi.exception.UnclaimedConsumerKeyException;
+import com.mashape.unirest.request.HttpRequest;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import javax.net.ssl.HttpsURLConnection;
-import org.glassfish.jersey.client.rx.RxInvocationBuilder;
-import org.glassfish.jersey.client.rx.rxjava.RxObservableInvoker;
 import rx.Observable;
 import rx.Subscriber;
 
@@ -76,12 +74,12 @@ public class Credential {
     /**
      * Signs an API request
      *
-     * @param _builder the RxInvocationBuilder containing the request
+     * @param request the request
      * @param _link the API request path
      * @param _method the API request method
      * @param _body the request body (if any)
      */
-    public void sign(RxInvocationBuilder<RxObservableInvoker> _builder, String _link, Method _method, String _body){
+    public void sign(HttpRequest request, String _link, Method _method, String _body) {
         long time = System.currentTimeMillis() / 1000;
 
         String preHash = this.applicationSecret
@@ -91,13 +89,13 @@ public class Credential {
                 + "+" + ((_body == null) ? "" : _body)
                 + "+" + time;
 
-        _builder.header("X-Ovh-Timestamp", Long.toString(time));
-        _builder.header("X-Ovh-Signature", "$1$" + toSHA1(preHash));
-        _builder.header("X-Ovh-Application", this.applicationKey);
-        _builder.header("X-Ovh-Consumer", this.consumerKey);
+        request.header("X-Ovh-Timestamp", Long.toString(time));
+        request.header("X-Ovh-Signature", "$1$" + toSHA1(preHash));
+        request.header("X-Ovh-Application", this.applicationKey);
+        request.header("X-Ovh-Consumer", this.consumerKey);
     }
 
-    private String toSHA1(String _preHash){
+    private String toSHA1(String _preHash) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-1");
             return bytesToHex(md.digest(_preHash.getBytes()));

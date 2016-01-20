@@ -74,25 +74,24 @@ public class Credential {
     /**
      * Signs an API request
      *
-     * @param request the request
-     * @param _link the API request path
+     * @param _request the request
      * @param _method the API request method
      * @param _body the request body (if any)
      */
-    public void sign(HttpRequest request, String _link, Method _method, String _body) {
+    public void sign(HttpRequest _request, Method _method, String _body) {
         long time = System.currentTimeMillis() / 1000;
 
         String preHash = this.applicationSecret
                 + "+" + this.consumerKey
                 + "+" + _method.name()
-                + "+" + _link
+                + "+" + _request.getUrl()
                 + "+" + ((_body == null) ? "" : _body)
                 + "+" + time;
 
-        request.header("X-Ovh-Timestamp", Long.toString(time));
-        request.header("X-Ovh-Signature", "$1$" + toSHA1(preHash));
-        request.header("X-Ovh-Application", this.applicationKey);
-        request.header("X-Ovh-Consumer", this.consumerKey);
+        _request.header("X-Ovh-Timestamp", Long.toString(time));
+        _request.header("X-Ovh-Signature", "$1$" + toSHA1(preHash));
+        _request.header("X-Ovh-Application", this.applicationKey);
+        _request.header("X-Ovh-Consumer", this.consumerKey);
     }
 
     private String toSHA1(String _preHash) {

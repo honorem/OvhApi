@@ -115,7 +115,7 @@ public class RequestBuilder {
         }
 
         if (credentials != null) {
-            credentials.sign(req, path, method, body);
+            credentials.sign(req, method, body);
         } else if (applicationKey != null) {
             req.header("X-Ovh-Application", this.applicationKey);
         }

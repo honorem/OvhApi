@@ -25,11 +25,9 @@ package com.github.cambierr.ovhapi.common;
 
 import com.github.cambierr.ovhapi.auth.Credential;
 import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.request.HttpRequest;
 import rx.Observable;
-import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -109,7 +107,7 @@ public class RequestBuilder {
                 req = ((body == null) ? Unirest.post(completePath) : Unirest.post(completePath).body(body)).getHttpRequest();
                 break;
             case PUT:
-                req = ((body == null) ? Unirest.put(completePath) : Unirest.post(completePath).body(body)).getHttpRequest();
+                req = ((body == null) ? Unirest.put(completePath) : Unirest.put(completePath).body(body)).getHttpRequest();
                 break;
             default:
                 throw new RuntimeException("wrong method received");

@@ -214,11 +214,6 @@ public class Project {
                 });
     }
 
-    private Project _setDescription(String _description) {
-        this.description = _description;
-        return this;
-    }
-
     /**
      * Updates this project's decription
      *
@@ -234,7 +229,8 @@ public class Project {
                     if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
                         return Observable.error(new RequestException(t1.getStatus(), t1.getStatusText(), t1.getBody().toString()));
                     }
-                    return Observable.just(_setDescription(_description));
+                    this.description = _description;
+                    return Observable.just(this);
                 });
     }
 

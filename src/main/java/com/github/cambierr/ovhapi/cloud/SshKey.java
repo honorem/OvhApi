@@ -25,10 +25,9 @@ package com.github.cambierr.ovhapi.cloud;
 
 import com.github.cambierr.ovhapi.common.Method;
 import com.github.cambierr.ovhapi.common.RequestBuilder;
+import com.github.cambierr.ovhapi.common.SafeResponse;
 import com.github.cambierr.ovhapi.exception.PartialObjectException;
 import com.github.cambierr.ovhapi.exception.RequestException;
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import rx.Observable;
@@ -87,9 +86,9 @@ public class SshKey {
 
         return new RequestBuilder("/cloud/project/" + _project.getId() + "/sshkey?" + args, Method.GET, _project.getCredentials())
                 .build()
-                .flatMap((HttpResponse<JsonNode> t1) -> {
-                    if (t1.getStatus() < 200 || t1.getStatus() >= 300 || !t1.getBody().isArray()) {
-                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusText(), t1.getBody().toString()));
+                .flatMap((SafeResponse t1) -> {
+                    if (t1.getStatus() < 200 || t1.getStatus() >= 300 || t1.getBody() == null || !t1.getBody().isArray()) {
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusText(), (t1.getBody() == null) ? null : t1.getBody().toString()));
                     }
                     final JSONArray keys = t1.getBody().getArray();
                     return Observable
@@ -112,9 +111,9 @@ public class SshKey {
     public static Observable<SshKey> byId(Project _project, String _id) {
         return new RequestBuilder("/cloud/project/" + _project.getId() + "/sshkey/" + _id, Method.GET, _project.getCredentials())
                 .build()
-                .flatMap((HttpResponse<JsonNode> t1) -> {
-                    if (t1.getStatus() < 200 || t1.getStatus() >= 300 || t1.getBody().isArray()) {
-                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusText(), t1.getBody().toString()));
+                .flatMap((SafeResponse t1) -> {
+                    if (t1.getStatus() < 200 || t1.getStatus() >= 300 || t1.getBody() == null || t1.getBody().isArray()) {
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusText(), (t1.getBody() == null) ? null : t1.getBody().toString()));
                     }
                     final JSONObject key = t1.getBody().getObject();
                     return Observable.just(new SshKey(_project, key.getString("id"), Region.byName(_project, key.getJSONArray("regions").getString(0)), key.getString("name"), key.getString("publicKey"), key.getString("fingerPrint")));
@@ -229,10 +228,10 @@ public class SshKey {
                         .toString()
                 )
                 .build()
-                .flatMap((HttpResponse<JsonNode> t1) -> {
+                .flatMap((SafeResponse t1) -> {
                     try {
-                        if (t1.getStatus() < 200 || t1.getStatus() >= 300 || t1.getBody().isArray()) {
-                            return Observable.error(new RequestException(t1.getStatus(), t1.getStatusText(), t1.getBody().toString()));
+                        if (t1.getStatus() < 200 || t1.getStatus() >= 300 || t1.getBody() == null || t1.getBody().isArray()) {
+                            return Observable.error(new RequestException(t1.getStatus(), t1.getStatusText(), (t1.getBody() == null) ? null : t1.getBody().toString()));
                         }
                         final JSONObject key = t1.getBody().getObject();
                         return Observable.just(new SshKey(_project, key.getString("id"), _region, _name, key.getString("publicKey"), key.getString("fingerPrint")));
@@ -250,9 +249,9 @@ public class SshKey {
     public Observable<SshKey> delete() {
         return new RequestBuilder("/cloud/project/" + project.getId() + "/sshkey/" + id, Method.DELETE, project.getCredentials())
                 .build()
-                .flatMap((HttpResponse<JsonNode> t1) -> {
+                .flatMap((SafeResponse t1) -> {
                     if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
-                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusText(), t1.getBody().toString()));
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusText(), (t1.getBody() == null) ? null : t1.getBody().toString()));
                     }
                     return Observable.just(this);
                 });

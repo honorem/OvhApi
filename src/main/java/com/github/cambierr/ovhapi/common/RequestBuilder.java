@@ -29,6 +29,7 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.request.HttpRequest;
 import rx.Observable;
+import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -94,7 +95,7 @@ public class RequestBuilder {
      *
      * @return an observable Resposne object
      */
-    public Observable<HttpResponse<JsonNode>> build() {
+    public Observable<SafeResponse> build() {
         String completePath = "https://" + OvhApi.API_ENDPOINT + "/" + OvhApi.API_VERSION + path;
         HttpRequest req = null;
         switch (method) {
@@ -121,7 +122,7 @@ public class RequestBuilder {
         }
         req.header("User-Agent", userAgent);
 
-        return Observable.from(req.asJsonAsync(), Schedulers.io());
+        return Observable.from(req.asStringAsync(), Schedulers.io()).map((HttpResponse<String> t) -> new SafeResponse(t));
     }
 
 }

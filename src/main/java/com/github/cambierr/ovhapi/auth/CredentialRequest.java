@@ -25,10 +25,9 @@ package com.github.cambierr.ovhapi.auth;
 
 import com.github.cambierr.ovhapi.common.Method;
 import com.github.cambierr.ovhapi.common.RequestBuilder;
+import com.github.cambierr.ovhapi.common.SafeResponse;
 import com.github.cambierr.ovhapi.exception.RequestException;
 import com.github.cambierr.ovhapi.exception.TokenNotLinkedException;
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
 import org.json.JSONObject;
 import rx.Observable;
 
@@ -58,9 +57,9 @@ public class CredentialRequest {
         return new RequestBuilder("/auth/credential", Method.POST, _applicationKey)
                 .body(new JSONObject().put("redirection", _redirection).put("accessRules", _rules.toJson()).toString())
                 .build()
-                .flatMap((HttpResponse<JsonNode> t1) -> {
-                    if (t1.getStatus() < 200 || t1.getStatus() >= 300 || t1.getBody().isArray()) {
-                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusText(), t1.getBody().toString()));
+                .flatMap((SafeResponse t1) -> {
+                    if (t1.getStatus() < 200 || t1.getStatus() >= 300 || t1.getBody() == null || t1.getBody().isArray()) {
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusText(), (t1.getBody() == null) ? null : t1.getBody().toString()));
                     }
                     JSONObject token = t1.getBody().getObject();
                     return Observable.just(new CredentialRequest(_applicationKey, _applicationSecret, token.getString("consumerKey"), token.getString("validationUrl")));

@@ -29,11 +29,12 @@ import com.github.cambierr.ovhapi.common.OvhApi;
 import com.github.cambierr.ovhapi.common.RequestBuilder;
 import com.github.cambierr.ovhapi.exception.PartialObjectException;
 import com.github.cambierr.ovhapi.exception.RequestException;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.ws.rs.core.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import rx.Observable;
@@ -174,12 +175,12 @@ public class Project {
     public static Observable<Project> byId(Credential _credentials, String _id) {
         return new RequestBuilder("/cloud/project/" + _id, Method.GET, _credentials)
                 .build()
-                .flatMap((Response t1) -> {
+                .flatMap((HttpResponse<JsonNode> t1) -> {
                     try {
-                        if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
-                            return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
+                        if (t1.getStatus() < 200 || t1.getStatus() >= 300 || t1.getBody().isArray()) {
+                            return Observable.error(new RequestException(t1.getStatus(), t1.getStatusText(), t1.getBody().toString()));
                         }
-                        JSONObject project = new JSONObject(t1.readEntity(String.class));
+                        JSONObject project = t1.getBody().getObject();
                         Project p = new Project(_credentials,
                                 project.getString("project_id"),
                                 project.getString("status"),
@@ -204,11 +205,11 @@ public class Project {
     public static Observable<Project> list(Credential _credentials) {
         return new RequestBuilder("/cloud/project", Method.GET, _credentials)
                 .build()
-                .flatMap((Response t1) -> {
-                    if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
-                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
+                .flatMap((HttpResponse<JsonNode> t1) -> {
+                    if (t1.getStatus() < 200 || t1.getStatus() >= 300 || !t1.getBody().isArray()) {
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusText(), t1.getBody().toString()));
                     }
-                    JSONArray resp = new JSONArray(t1.readEntity(String.class));
+                    JSONArray resp = t1.getBody().getArray();
                     return Observable.range(0, resp.length()).map((Integer t) -> new Project(_credentials, resp.getString(t)));
                 });
     }
@@ -229,9 +230,9 @@ public class Project {
         return new RequestBuilder("/cloud/project/" + this.id, Method.PUT, credentials)
                 .body(new JSONObject().put("description", _description).toString())
                 .build()
-                .flatMap((Response t1) -> {
+                .flatMap((HttpResponse<JsonNode> t1) -> {
                     if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
-                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusText(), t1.getBody().toString()));
                     }
                     return Observable.just(_setDescription(_description));
                 });
@@ -254,11 +255,11 @@ public class Project {
         }
         return new RequestBuilder("/cloud/project/" + this.id + "/consumption" + args, Method.GET, credentials)
                 .build()
-                .flatMap((Response t1) -> {
-                    if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
-                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
+                .flatMap((HttpResponse<JsonNode> t1) -> {
+                    if (t1.getStatus() < 200 || t1.getStatus() >= 300 || t1.getBody().isArray()) {
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusText(), t1.getBody().toString()));
                     }
-                    JSONObject output = new JSONObject(t1.readEntity(String.class));
+                    JSONObject output = t1.getBody().getObject();
                     return Observable.just(new Consumption(output));
                 });
     }

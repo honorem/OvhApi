@@ -28,8 +28,9 @@ import com.github.cambierr.ovhapi.common.OvhApi;
 import com.github.cambierr.ovhapi.common.RequestBuilder;
 import com.github.cambierr.ovhapi.exception.PartialObjectException;
 import com.github.cambierr.ovhapi.exception.RequestException;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
 import java.text.ParseException;
-import javax.ws.rs.core.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import rx.Observable;
@@ -132,11 +133,11 @@ public class Snapshot {
 
         return new RequestBuilder("/cloud/project/" + _project.getId() + "/snapshot?" + args, Method.GET, _project.getCredentials())
                 .build()
-                .flatMap((Response t1) -> {
-                    if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
-                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
+                .flatMap((HttpResponse<JsonNode> t1) -> {
+                    if (t1.getStatus() < 200 || t1.getStatus() >= 300 || !t1.getBody().isArray()) {
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusText(), t1.getBody().toString()));
                     }
-                    final JSONArray snapshots = new JSONArray(t1.readEntity(String.class));
+                    final JSONArray snapshots = t1.getBody().getArray();
                     return Observable
                     .range(0, snapshots.length())
                     .flatMap((Integer t2) -> Observable.create((Subscriber<? super Snapshot> t3) -> {
@@ -171,12 +172,12 @@ public class Snapshot {
     public static Observable<Snapshot> byId(Project _project, String _id) {
         return new RequestBuilder("/cloud/project/" + _project.getId() + "/snapshot/" + _id, Method.GET, _project.getCredentials())
                 .build()
-                .flatMap((Response t1) -> {
+                .flatMap((HttpResponse<JsonNode> t1) -> {
                     try {
-                        if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
-                            return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
+                        if (t1.getStatus() < 200 || t1.getStatus() >= 300 || t1.getBody().isArray()) {
+                            return Observable.error(new RequestException(t1.getStatus(), t1.getStatusText(), t1.getBody().toString()));
                         }
-                        final JSONObject image = new JSONObject(t1.readEntity(String.class));
+                        final JSONObject image = t1.getBody().getObject();
 
                         return Observable.just(new Snapshot(_project,
                                         image.getString("id"),
@@ -305,9 +306,9 @@ public class Snapshot {
     public Observable<Snapshot> delete() {
         return new RequestBuilder("/cloud/project/" + project.getId() + "/snapshot/" + id, Method.DELETE, project.getCredentials())
                 .build()
-                .flatMap((Response t1) -> {
+                .flatMap((HttpResponse<JsonNode> t1) -> {
                     if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
-                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusText(), t1.getBody().toString()));
                     }
                     return Observable.just(this);
                 });

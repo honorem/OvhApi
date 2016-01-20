@@ -27,7 +27,8 @@ import com.github.cambierr.ovhapi.common.Method;
 import com.github.cambierr.ovhapi.common.RequestBuilder;
 import com.github.cambierr.ovhapi.exception.PartialObjectException;
 import com.github.cambierr.ovhapi.exception.RequestException;
-import javax.ws.rs.core.Response;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import rx.Observable;
@@ -39,7 +40,7 @@ import rx.Observable;
 public class SshKey {
 
     private final String id;
-    private Region region;
+    private final Region region;
     private String name;
     private String pubKey;
     private String fingerPrint;
@@ -86,11 +87,11 @@ public class SshKey {
 
         return new RequestBuilder("/cloud/project/" + _project.getId() + "/sshkey?" + args, Method.GET, _project.getCredentials())
                 .build()
-                .flatMap((Response t1) -> {
-                    if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
-                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
+                .flatMap((HttpResponse<JsonNode> t1) -> {
+                    if (t1.getStatus() < 200 || t1.getStatus() >= 300 || !t1.getBody().isArray()) {
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusText(), t1.getBody().toString()));
                     }
-                    final JSONArray keys = new JSONArray(t1.readEntity(String.class));
+                    final JSONArray keys = t1.getBody().getArray();
                     return Observable
                     .range(0, keys.length())
                     .map((Integer t2) -> {
@@ -111,11 +112,11 @@ public class SshKey {
     public static Observable<SshKey> byId(Project _project, String _id) {
         return new RequestBuilder("/cloud/project/" + _project.getId() + "/sshkey/" + _id, Method.GET, _project.getCredentials())
                 .build()
-                .flatMap((Response t1) -> {
-                    if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
-                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
+                .flatMap((HttpResponse<JsonNode> t1) -> {
+                    if (t1.getStatus() < 200 || t1.getStatus() >= 300 || t1.getBody().isArray()) {
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusText(), t1.getBody().toString()));
                     }
-                    final JSONObject key = new JSONObject(t1.readEntity(String.class));
+                    final JSONObject key = t1.getBody().getObject();
                     return Observable.just(new SshKey(_project, key.getString("id"), Region.byName(_project, key.getJSONArray("regions").getString(0)), key.getString("name"), key.getString("publicKey"), key.getString("fingerPrint")));
                 });
     }
@@ -228,12 +229,12 @@ public class SshKey {
                         .toString()
                 )
                 .build()
-                .flatMap((Response t1) -> {
+                .flatMap((HttpResponse<JsonNode> t1) -> {
                     try {
-                        if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
-                            return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
+                        if (t1.getStatus() < 200 || t1.getStatus() >= 300 || t1.getBody().isArray()) {
+                            return Observable.error(new RequestException(t1.getStatus(), t1.getStatusText(), t1.getBody().toString()));
                         }
-                        final JSONObject key = new JSONObject(t1.readEntity(String.class));
+                        final JSONObject key = t1.getBody().getObject();
                         return Observable.just(new SshKey(_project, key.getString("id"), _region, _name, key.getString("publicKey"), key.getString("fingerPrint")));
                     } catch (Exception ex) {
                         return Observable.error(ex);
@@ -249,9 +250,9 @@ public class SshKey {
     public Observable<SshKey> delete() {
         return new RequestBuilder("/cloud/project/" + project.getId() + "/sshkey/" + id, Method.DELETE, project.getCredentials())
                 .build()
-                .flatMap((Response t1) -> {
+                .flatMap((HttpResponse<JsonNode> t1) -> {
                     if (t1.getStatus() < 200 || t1.getStatus() >= 300) {
-                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusInfo().getReasonPhrase(), t1.readEntity(String.class)));
+                        return Observable.error(new RequestException(t1.getStatus(), t1.getStatusText(), t1.getBody().toString()));
                     }
                     return Observable.just(this);
                 });

@@ -105,10 +105,10 @@ public class RequestBuilder {
                 req = Unirest.delete(completePath);
                 break;
             case POST:
-                req = ((body == null) ? Unirest.post(completePath) : Unirest.post(completePath).body(body)).getHttpRequest();
+                req = ((body == null) ? Unirest.post(completePath) : Unirest.post(completePath).header("Content-type", "application/json").body(body)).getHttpRequest();
                 break;
             case PUT:
-                req = ((body == null) ? Unirest.put(completePath) : Unirest.post(completePath).body(body)).getHttpRequest();
+                req = ((body == null) ? Unirest.put(completePath) : Unirest.post(completePath).header("Content-type", "application/json").body(body)).getHttpRequest();
                 break;
             default:
                 throw new RuntimeException("wrong method received");

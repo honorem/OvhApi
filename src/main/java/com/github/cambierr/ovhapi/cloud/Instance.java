@@ -83,7 +83,7 @@ public class Instance {
                     .flatMap((Integer t2) -> {
                         JSONObject instance = instances.getJSONObject(t2);
                         try {
-                            return Observable.just(new Instance(_project, Status.valueOf(instance.getString("status")), Region.byName(_project, instance.getString("region")), instance.getString("name"), Image.byId(_project, instance.getString("imageId"), Region.byName(_project, instance.getString("region"))), OvhApi.dateToTime(instance.getString("created")), Flavor.byId(_project, instance.getString("flavorId"), Region.byName(_project, instance.getString("region"))), SshKey.byIdPartial(_project, instance.getString("sshKeyId")), instance.getString("id")));
+                            return Observable.just(new Instance(_project, Status.valueOf(instance.getString("status")), Region.byName(_project, instance.getString("region")), instance.getString("name"), Image.byId(_project, instance.getString("imageId"), Region.byName(_project, instance.getString("region"))), OvhApi.dateToTime(instance.getString("created")), Flavor.byId(_project, instance.getString("flavorId"), Region.byName(_project, instance.getString("region"))), instance.get("sshKeyId") == JSONObject.NULL ? null : SshKey.byIdPartial(_project, instance.getString("sshKeyId")), instance.getString("id")));
                         } catch (JSONException | ParseException ex) {
                             return Observable.error(ex);
                         }

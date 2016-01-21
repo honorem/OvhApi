@@ -108,7 +108,19 @@ public class Instance {
                             return Observable.error(new RequestException(t1.getStatus(), t1.getStatusText(), (t1.getBody() == null) ? null : t1.getBody().toString()));
                         }
                         final JSONObject instance = t1.getBody().getObject();
-                        return Observable.just(new Instance(_project, Status.valueOf(instance.getString("status")), Region.byName(_project, instance.getString("region")), instance.getString("name"), Image.byId(_project, instance.getString("imageId"), Region.byName(_project, instance.getString("region"))), OvhApi.dateToTime(instance.getString("created")), Flavor.byId(_project, instance.getString("flavorId"), Region.byName(_project, instance.getString("region"))), SshKey.byIdPartial(_project, instance.getString("sshKeyId")), instance.getString("id")));
+                        JSONObject jsonImage = instance.getJSONObject("image");
+                        JSONObject jsonFlavor = instance.getJSONObject("flavor");
+                        JSONObject jsonSshKey = instance.get("sshKey") == JSONObject.NULL ? null : instance.getJSONObject("sshKey");
+                        return Observable.just(new Instance(
+                                        _project,
+                                        Status.valueOf(instance.getString("status")),
+                                        Region.byName(_project, instance.getString("region")),
+                                        instance.getString("name"),
+                                        new Image(_project, jsonImage.getString("id"), jsonImage.getString("visibility"), OvhApi.dateToTime(jsonImage.getString("creationDate")), jsonImage.getString("status"), Region.byName(_project, jsonImage.getString("region")), jsonImage.getString("name"), jsonImage.getString("type"), jsonImage.getInt("minDisk")),
+                                        OvhApi.dateToTime(instance.getString("created")),
+                                        new Flavor(_project, jsonFlavor.getString("id"), jsonFlavor.getInt("disk"), Region.byName(_project, jsonFlavor.getString("region")), jsonFlavor.getString("name"), jsonFlavor.getInt("vcpus"), jsonFlavor.getString("type"), jsonFlavor.getString("osType"), jsonFlavor.getInt("ram")),
+                                        jsonSshKey == null ? null : new SshKey(_project, jsonSshKey.getString("id"), Region.byName(_project, jsonSshKey.getJSONArray("regions").getString(0)), jsonSshKey.getString("name"), jsonSshKey.getString("publicKey"), jsonSshKey.getString("fingerPrint")),
+                                        instance.getString("id")));
                     } catch (ParseException ex) {
                         return Observable.error(ex);
                     }
@@ -266,7 +278,20 @@ public class Instance {
                             return Observable.error(new RequestException(t1.getStatus(), t1.getStatusText(), (t1.getBody() == null) ? null : t1.getBody().toString()));
                         }
                         final JSONObject instance = t1.getBody().getObject();
-                        return Observable.just(new Instance(_project, Status.valueOf(instance.getString("status")), Region.byName(_project, instance.getString("region")), instance.getString("name"), Image.byId(_project, instance.getString("imageId"), Region.byName(_project, instance.getString("region"))), OvhApi.dateToTime(instance.getString("created")), Flavor.byId(_project, instance.getString("flavorId"), Region.byName(_project, instance.getString("region"))), SshKey.byIdPartial(_project, instance.getString("sshKeyId")), instance.getString("id")));
+                        //@todo go on from here
+                        JSONObject jsonImage = instance.getJSONObject("image");
+                        JSONObject jsonFlavor = instance.getJSONObject("flavor");
+                        JSONObject jsonSshKey = instance.get("sshKey") == JSONObject.NULL ? null : instance.getJSONObject("sshKey");
+                        return Observable.just(new Instance(
+                                        _project,
+                                        Status.valueOf(instance.getString("status")),
+                                        Region.byName(_project, instance.getString("region")),
+                                        instance.getString("name"),
+                                        new Image(_project, jsonImage.getString("id"), jsonImage.getString("visibility"), OvhApi.dateToTime(jsonImage.getString("creationDate")), jsonImage.getString("status"), Region.byName(_project, jsonImage.getString("region")), jsonImage.getString("name"), jsonImage.getString("type"), jsonImage.getInt("minDisk")),
+                                        OvhApi.dateToTime(instance.getString("created")),
+                                        new Flavor(_project, jsonFlavor.getString("id"), jsonFlavor.getInt("disk"), Region.byName(_project, jsonFlavor.getString("region")), jsonFlavor.getString("name"), jsonFlavor.getInt("vcpus"), jsonFlavor.getString("type"), jsonFlavor.getString("osType"), jsonFlavor.getInt("ram")),
+                                        jsonSshKey == null ? null : new SshKey(_project, jsonSshKey.getString("id"), Region.byName(_project, jsonSshKey.getJSONArray("regions").getString(0)), jsonSshKey.getString("name"), jsonSshKey.getString("publicKey"), jsonSshKey.getString("fingerPrint")),
+                                        instance.getString("id")));
                     } catch (ParseException ex) {
                         return Observable.error(ex);
                     }

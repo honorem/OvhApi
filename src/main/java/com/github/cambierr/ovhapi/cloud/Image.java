@@ -53,7 +53,7 @@ public class Image {
     private boolean partial = false;
     private final Project project;
 
-    private Image(Project _project, String _id, String _visibility, long _creationDate, String _status, Region _region, String _name, String _type, int _minDisk) {
+    protected Image(Project _project, String _id, String _visibility, long _creationDate, String _status, Region _region, String _name, String _type, int _minDisk) {
         visibility = _visibility;
         creationDate = _creationDate;
         status = _status;

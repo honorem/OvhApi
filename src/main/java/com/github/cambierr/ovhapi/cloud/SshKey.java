@@ -47,7 +47,7 @@ public class SshKey {
     private boolean partial = false;
     private final Project project;
 
-    private SshKey(Project _project, String _id, Region _region, String _name, String _pubKey, String _fingerPrint) {
+    protected SshKey(Project _project, String _id, Region _region, String _name, String _pubKey, String _fingerPrint) {
         project = _project;
         id = _id;
         region = _region;

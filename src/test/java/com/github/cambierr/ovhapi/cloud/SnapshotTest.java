@@ -5,6 +5,13 @@
  */
 package com.github.cambierr.ovhapi.cloud;
 
+import com.github.cambierr.ovhapi.auth.Credential;
+import static com.github.cambierr.ovhapi.cloud.InstanceTest.project;
+import static com.github.cambierr.ovhapi.cloud.ProjectTest.credential;
+import com.github.cambierr.ovhapi.common.OvhApi;
+import com.github.cambierr.ovhapi.common.Settings;
+import java.text.ParseException;
+import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -19,7 +26,19 @@ import rx.Observable;
  */
 public class SnapshotTest {
     
+    static Project project;
+    static Region region;
+    static Flavor flavor;
+    static Snapshot snapshot;
+    
     public SnapshotTest() {
+        credential = Credential.build(Settings.applicationKey, Settings.applicationSecret, Settings.consumerKey).toBlocking().single();
+
+        project = Project.byId(credential, Settings.projectId).toBlocking().single();
+        region = Region.byName(project, Settings.defaultRegionName);
+        flavor = Flavor.byId(project, Settings.defaultFlavorId).toBlocking().single();
+        
+        snapshot = Snapshot.byId(project, Settings.defaultSnapshotId).toBlocking().single();
     }
     
     @BeforeClass
@@ -44,12 +63,11 @@ public class SnapshotTest {
     @Test
     public void testComplete() {
         System.out.println("complete");
-        Snapshot instance = null;
-        Observable<Snapshot> expResult = null;
-        Observable<Snapshot> result = instance.complete();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        Snapshot instance = snapshot;
+
+        Snapshot result = instance.complete().toBlocking().single();
+        assertNotNull(result);
+
     }
 
     /**
@@ -58,12 +76,10 @@ public class SnapshotTest {
     @Test
     public void testIsPartial() {
         System.out.println("isPartial");
-        Snapshot instance = null;
+        Snapshot instance = snapshot;
         boolean expResult = false;
         boolean result = instance.isPartial();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -72,14 +88,15 @@ public class SnapshotTest {
     @Test
     public void testList() {
         System.out.println("list");
-        Project _project = null;
-        Region _region = null;
-        Flavor _flavor = null;
-        Observable<Snapshot> expResult = null;
-        Observable<Snapshot> result = Snapshot.list(_project, _region, _flavor);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        Project _project = project;
+        Region _region = region;
+        Flavor _flavor = flavor;
+
+        List<Snapshot> result = Snapshot.list(_project, _region, _flavor).toList().toBlocking().single();
+        assertNotNull(result);
+        
+        assertNotNull(result.get(0));
+        assertEquals(result.get(0).getClass(), Snapshot.class);
     }
 
     /**
@@ -88,13 +105,12 @@ public class SnapshotTest {
     @Test
     public void testById() {
         System.out.println("byId");
-        Project _project = null;
-        String _id = "";
-        Observable<Snapshot> expResult = null;
-        Observable<Snapshot> result = Snapshot.byId(_project, _id);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        Project _project = project;
+        String _id = Settings.defaultSnapshotId;
+
+        Snapshot result = Snapshot.byId(_project, _id).toBlocking().single();
+        assertNotNull(result);
+
     }
 
     /**
@@ -103,26 +119,23 @@ public class SnapshotTest {
     @Test
     public void testGetVisibility() {
         System.out.println("getVisibility");
-        Snapshot instance = null;
-        String expResult = "";
+        Snapshot instance = snapshot;
+        String expResult = Settings.defaultSnapshotVisibility;
         String result = instance.getVisibility();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
      * Test of getCreationDate method, of class Snapshot.
      */
     @Test
-    public void testGetCreationDate() {
+    public void testGetCreationDate() throws ParseException {
         System.out.println("getCreationDate");
-        Snapshot instance = null;
-        long expResult = 0L;
+        Snapshot instance = snapshot;
+        long expResult = OvhApi.dateToTime("2016-01-21T08:04:43Z");
         long result = instance.getCreationDate();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+
     }
 
     /**
@@ -131,12 +144,11 @@ public class SnapshotTest {
     @Test
     public void testGetStatus() {
         System.out.println("getStatus");
-        Snapshot instance = null;
-        String expResult = "";
+        Snapshot instance = snapshot;
+        String expResult = "active";
         String result = instance.getStatus();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+
     }
 
     /**
@@ -145,12 +157,11 @@ public class SnapshotTest {
     @Test
     public void testGetRegion() {
         System.out.println("getRegion");
-        Snapshot instance = null;
-        Region expResult = null;
+        Snapshot instance = snapshot;
+        Region expResult = Region.byName(project, "GRA1");
         Region result = instance.getRegion();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertEquals(expResult.getName(), result.getName());
+
     }
 
     /**
@@ -159,12 +170,11 @@ public class SnapshotTest {
     @Test
     public void testGetName() {
         System.out.println("getName");
-        Snapshot instance = null;
-        String expResult = "";
+        Snapshot instance = snapshot;
+        String expResult = "Test_Snapchot";
         String result = instance.getName();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+
     }
 
     /**
@@ -173,12 +183,11 @@ public class SnapshotTest {
     @Test
     public void testGetType() {
         System.out.println("getType");
-        Snapshot instance = null;
-        String expResult = "";
+        Snapshot instance = snapshot;
+        String expResult = "linux";
         String result = instance.getType();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+
     }
 
     /**
@@ -187,12 +196,11 @@ public class SnapshotTest {
     @Test
     public void testGetId() {
         System.out.println("getId");
-        Snapshot instance = null;
-        String expResult = "";
+        Snapshot instance = snapshot;
+        String expResult = Settings.defaultSnapshotId;
         String result = instance.getId();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+
     }
 
     /**
@@ -201,12 +209,11 @@ public class SnapshotTest {
     @Test
     public void testGetMinDisk() {
         System.out.println("getMinDisk");
-        Snapshot instance = null;
-        int expResult = 0;
+        Snapshot instance = snapshot;
+        int expResult = 10;
         int result = instance.getMinDisk();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+
     }
 
     /**
@@ -215,12 +222,8 @@ public class SnapshotTest {
     @Test
     public void testDelete() {
         System.out.println("delete");
-        Snapshot instance = null;
-        Observable<Snapshot> expResult = null;
-        Observable<Snapshot> result = instance.delete();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        
+        //don't test it or snapshot will be deleted
     }
     
 }

@@ -185,5 +185,21 @@ public class SshKeyTest {
 
         result.delete().toBlocking().single();
     }
+
+    /**
+     * Test of create method, of class SshKey.
+     */
+    @Test
+    public void testCreate() {
+        //tested in TestCreateAndTestDelete
+    }
+
+    /**
+     * Test of delete method, of class SshKey.
+     */
+    @Test
+    public void testDelete() {
+        //tested in TestCreateAndTestDelete
+    }
     
 }

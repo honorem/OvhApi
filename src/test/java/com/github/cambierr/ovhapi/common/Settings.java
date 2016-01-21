@@ -10,34 +10,52 @@ package com.github.cambierr.ovhapi.common;
  * @author honorem
  */
 public class Settings {
+
     public static String credentialToken = "";
     public static String consumerKey = "";
-    
+
     public static String applicationKey = "";
     public static String applicationSecret = "";
-    public static String redirection = "http://example.com";
-    public static String validationUrl = "https://eu.api.ovh.com/auth/?credentialToken=";
-    
-    public static String projectId = "b1373b69a4004c3fab71c3ab5ce94c7d";
-    public static String projectDescription = "Projet 1";
-    public static String projectStatus = "ok";
-    public static Long projectCreationDate = 1441875985000L;
+    public static String redirection = "";
+    public static String validationUrl = "";
+
+    public static String projectId = "";
+    public static String projectDescription = "";
+    public static String projectStatus = "";
+    public static Long projectCreationDate = 0L;
     public static Double projectBalance = 0.0;
-    
-    public static String defaultRegionName = "GRA1";
-    
-    public static String defaultFlavorId = "98c1e679-5f2c-4069-b4da-4a4f7179b758";
-    public static int defaultFlavorDisk = 10;
-    public static String defaultFlavorRegion = "GRA1";
-    public static String defaultFlavorName = "vps-ssd-1";
-    public static int defaultFlavorVcpus = 1;
-    public static String defaultFlavorType = "ovh.vps-ssd";
-    public static String defaultFlavorOsType = "linux";
-    public static int defaultFlavorRam = 2000;
-    
-    public static String defaultImageId = "3bda2a66-5c24-4b1d-b850-83333b580674";
-    
+
+    public static String defaultRegionName = "";
+
+    public static String defaultFlavorId = "";
+    public static int defaultFlavorDisk = 0;
+    public static String defaultFlavorRegion = "";
+    public static String defaultFlavorName = "";
+    public static int defaultFlavorVcpus = 0;
+    public static String defaultFlavorType = "";
+    public static String defaultFlavorOsType = "";
+    public static int defaultFlavorRam = 0;
+
+    public static String defaultImageId = "";
+
     public static String publicKey = "";
+
+    public static String defaultStorageId = "";
+    public static String defaultStorageRegion = "";
+    public static String defaultStorageName = "";
+    public static String defaultStorageStaticUrl = "";
+    public static Long defaultStorageStoredBytes = 0L;
+    public static Long defaultStorageStoredObjects = 0L;
+    public static Boolean defaultStorageIsPublic = false;
+
+    public static String defaultInstanceId = "";
+    public static String defaultInstanceRegion = "";
+    public static String defaultInstanceName = "";
+    public static String defaultInstanceImageId = "";
+    public static String defaultInstanceFlavorId = "";
     
+    public static String defaultSnapshotId = "";
+    public static String defaultSnapshotVisibility = "";
     
+
 }

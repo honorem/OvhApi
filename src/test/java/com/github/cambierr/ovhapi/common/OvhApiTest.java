@@ -5,6 +5,7 @@
  */
 package com.github.cambierr.ovhapi.common;
 
+import java.text.ParseException;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -41,10 +42,10 @@ public class OvhApiTest {
      * Test of dateToTime method, of class OvhApi.
      */
     @Test
-    public void testDateToTime() throws Exception {
+    public void testDateToTime() throws ParseException{
         System.out.println("dateToTime");
-        String _date = "1970-01-01T01:00:00+01:00";
-        long expResult = 0L;
+        String _date = Settings.dateString;
+        long expResult = Settings.dateLong;
         long result = OvhApi.dateToTime(_date);
         assertEquals(expResult, result);
 
@@ -56,8 +57,8 @@ public class OvhApiTest {
     @Test
     public void testTimeToDate() {
         System.out.println("timeToDate");
-        long _time = 0L;
-        String expResult = "1970-01-01T01:00:00+01:00";
+        long _time = Settings.dateLong;
+        String expResult = Settings.dateString;
         String result = OvhApi.timeToDate(_time);
         assertEquals(expResult, result);
 

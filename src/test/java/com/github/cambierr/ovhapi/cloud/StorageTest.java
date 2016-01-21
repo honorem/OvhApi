@@ -38,12 +38,15 @@ public class StorageTest {
 
         project = Project.byId(credential, Settings.projectId).toBlocking().single();
 
-        storage = Storage.byId(project, Settings.defaultStorageId).toBlocking().single();
+        storage = Storage.create(project, Region.byName(project, Settings.defaultRegionName), "TestStorage").toBlocking().single();
 
+        Settings.defaultStorageId = storage.getId();
+        
     }
 
     @AfterClass
     public static void tearDownClass() {
+        storage.delete().toBlocking().single();
     }
 
     @Before
@@ -229,12 +232,7 @@ public class StorageTest {
     public void testCreateAndDelete() {
         System.out.println("create and delete");
         
-        Storage instance = Storage.create(project, Region.byName(project, Settings.defaultStorageRegion), "Create").toBlocking().single();
-        
-        assertNotNull(instance);
-        
-        instance.delete().toBlocking().single();
-        
+        // tested while setup and teardown
         
     }
 

@@ -50,7 +50,7 @@ public class Flavor {
     private boolean partial = false;
     private final Project project;
 
-    private Flavor(Project _project, String _id, int _disk, Region _region, String _name, int _vcpus, String _type, String _osType, int _ram) {
+    protected Flavor(Project _project, String _id, int _disk, Region _region, String _name, int _vcpus, String _type, String _osType, int _ram) {
         id = _id;
         disk = _disk;
         region = _region;

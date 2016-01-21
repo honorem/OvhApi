@@ -114,7 +114,7 @@ public class Storage {
                         return Observable.error(new RequestException(t1.getStatus(), t1.getStatusText(), (t1.getBody() == null) ? null : t1.getBody().toString()));
                     }
                     final JSONObject container = t1.getBody().getObject();
-                    return Observable.just(new Storage(_project, container.getString("id"), container.getString("name"), Region.byName(_project, container.getString("region")), container.getLong("storedBytes"), container.getLong("storedObjects"), container.getString("staticUrl"), container.getBoolean("public")));
+                    return Observable.just(new Storage(_project, _id, container.getString("name"), Region.byName(_project, container.getString("region")), container.getLong("storedBytes"), container.getLong("storedObjects"), container.getString("staticUrl"), container.getBoolean("public")));
                 });
     }
 

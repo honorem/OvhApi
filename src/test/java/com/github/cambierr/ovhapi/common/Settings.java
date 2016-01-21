@@ -16,46 +16,57 @@ public class Settings {
 
     public static String applicationKey = "";
     public static String applicationSecret = "";
-    public static String redirection = "";
-    public static String validationUrl = "";
 
-    public static String projectId = "";
-    public static String projectDescription = "";
-    public static String projectStatus = "";
-    public static Long projectCreationDate = 0L;
+    public static String dateString = "1970-01-01T01:00:00+00:00"; //replace with your GMT
+    public static Long dateLong = 0L;
+
+    public final static String projectId = ""; //replace with your project test id
+    public static String defaultSnapshotId = ""; //replace with an existing snapshot in the project
+
+
+    /**
+     * Internal test settings
+     * You shouldn't need to update those variables
+     */
+    
+    
+    public static String redirection = "http://example.com";
+    public static String validationUrl = "https://eu.api.ovh.com/auth/?credentialToken=";
+
+    public static String projectDescription = "test";
+    public static String projectStatus = "ok";
+    public static Long projectCreationDate = 1441875985000L;
     public static Double projectBalance = 0.0;
 
-    public static String defaultRegionName = "";
+    public static String defaultRegionName = "GRA1";
 
-    public static String defaultFlavorId = "";
-    public static int defaultFlavorDisk = 0;
-    public static String defaultFlavorRegion = "";
-    public static String defaultFlavorName = "";
-    public static int defaultFlavorVcpus = 0;
-    public static String defaultFlavorType = "";
-    public static String defaultFlavorOsType = "";
-    public static int defaultFlavorRam = 0;
+    public static String defaultFlavorId = "98c1e679-5f2c-4069-b4da-4a4f7179b758";
+    public static int defaultFlavorDisk = 10;
+    public static String defaultFlavorRegion = "GRA1";
+    public static String defaultFlavorName = "vps-ssd-1";
+    public static int defaultFlavorVcpus = 1;
+    public static String defaultFlavorType = "ovh.vps-ssd";
+    public static String defaultFlavorOsType = "linux";
+    public static int defaultFlavorRam = 2000;
 
-    public static String defaultImageId = "";
+    public static String defaultImageId = "3bda2a66-5c24-4b1d-b850-83333b580674";
 
-    public static String publicKey = "";
+    public static String publicKey = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC4mpXtv+yNbpxBTYkVv79d6ukNr3kYtuAQmYaONkgj6EQbNwNcee5j0hhjVZNCn7lav3wSsBU3nHhlLZyULPsV6WDp1cAayklBBSuoLnftAZJT+pIEUM8QFE0BFXDns+QSkFvXHsZGk7GUpQKVNvzWTpltaj9AksVL6yFH+RC7SfRXbQeQyN9EeIFCLHYUNKyPua7AQz2GCWT0VQeTQcMIBRMqqwn8w9dCnlOb6cs88xPjQQGtHMNukly8ryhSANiBx+kYI2+YT0bOINQ+5yQtHd2udVJQKdHCMOkznEuogTQXwAJea4fLIzAaXhJV/rI2wMsEbT4k9agVSImTzlLS2FZJObNRsanWPhAoCgMDz+ro/AFOYXX+V/lp4pwHNJDhU3as0QXBTOoJDJ7dguN7xlYazIuG1rOhLC6Wvj7P2fOyshpEVO0d1naeIIumLCf/6ewaFFypvFESxs55pFzVrnv1iCWCjm+NjdTVnTzd9MAqeeLz9I1VWvxJTIeoSFqkgkBOOKLS7C1c3i2DNmVO6/2GQv02mkc7R8BfHRwhzsSdXpEHdZQT3u8y8Cd9P6DM2Z5/D+Ma67T0TrJu7v4uYOwzQ8B6FZNdFbCh9wOpUosH52IlJfTgLcnxGzY/mTmj11tKKYIXP88KqiJrDy8Bez4QiN4SyUroQyYIxj6qFw== honorem@honorem-laptop";
 
-    public static String defaultStorageId = "";
-    public static String defaultStorageRegion = "";
-    public static String defaultStorageName = "";
-    public static String defaultStorageStaticUrl = "";
+    public static String defaultStorageId = ""; //this will be set during test
+    public static String defaultStorageRegion = "GRA1";
+    public static String defaultStorageName = "Test";
+    public static String defaultStorageStaticUrl = "Test.AUTH-" + projectId + ".storage.gra1.cloud.ovh.net";
     public static Long defaultStorageStoredBytes = 0L;
     public static Long defaultStorageStoredObjects = 0L;
     public static Boolean defaultStorageIsPublic = false;
 
-    public static String defaultInstanceId = "";
-    public static String defaultInstanceRegion = "";
-    public static String defaultInstanceName = "";
-    public static String defaultInstanceImageId = "";
-    public static String defaultInstanceFlavorId = "";
-    
-    public static String defaultSnapshotId = "";
-    public static String defaultSnapshotVisibility = "";
-    
+    public static String defaultInstanceId = ""; //this will be set during test
+    public static String defaultInstanceRegion = "GRA1";
+    public static String defaultInstanceName = "Test";
+    public static String defaultInstanceImageId = "3bda2a66-5c24-4b1d-b850-83333b580674";
+    public static String defaultInstanceFlavorId = "98c1e679-5f2c-4069-b4da-4a4f7179b758";
+
+    public static String defaultSnapshotVisibility = "private";
 
 }

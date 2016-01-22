@@ -6,6 +6,7 @@
 package com.github.cambierr.ovhapi.auth;
 
 import com.github.cambierr.ovhapi.common.Method;
+import com.github.cambierr.ovhapi.common.Settings;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;

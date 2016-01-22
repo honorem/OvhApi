@@ -38,7 +38,7 @@ public class StorageTest {
 
         project = Project.byId(credential, Settings.projectId).toBlocking().single();
 
-        storage = Storage.create(project, Region.byName(project, Settings.defaultRegionName), "TestStorage").toBlocking().single();
+        storage = Storage.create(project, Region.byName(project, Settings.defaultRegionName), Settings.defaultStorageName).toBlocking().single();
 
         Settings.defaultStorageId = storage.getId();
         

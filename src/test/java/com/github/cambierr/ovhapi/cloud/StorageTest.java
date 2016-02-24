@@ -41,7 +41,7 @@ public class StorageTest {
         storage = Storage.create(project, Region.byName(project, Settings.defaultRegionName), Settings.defaultStorageName).toBlocking().single();
 
         Settings.defaultStorageId = storage.getId();
-        
+
     }
 
     @AfterClass
@@ -156,8 +156,16 @@ public class StorageTest {
         System.out.println("getStaticUrl");
         Storage instance = storage;
         String expResult = Settings.defaultStorageStaticUrl;
-        String result = instance.getStaticUrl();
-        assertEquals(expResult, result);
+        String result;
+        try{
+            result = instance.getStaticUrl();
+            assertEquals(expResult, result);
+        } catch (PartialObjectException ex) {
+            instance.complete().toBlocking().single();
+            result = instance.getStaticUrl();
+            assertEquals(expResult, result);
+        }
+        
 
     }
 
@@ -169,8 +177,16 @@ public class StorageTest {
         System.out.println("isPublic");
         Storage instance = storage;
         boolean expResult = Settings.defaultStorageIsPublic;
-        boolean result = instance.isPublic();
-        assertEquals(expResult, result);
+        boolean result;
+        try {
+            result = instance.isPublic();
+            assertEquals(expResult, result);
+        } catch (PartialObjectException ex) {
+            instance.complete().toBlocking().single();
+            result = instance.isPublic();
+            assertEquals(expResult, result);
+        }
+        
     }
 
     /**
@@ -185,12 +201,12 @@ public class StorageTest {
         boolean result = Storage.list(project).toList().toBlocking().single().get(0).isPartial();
 
         assertEquals(expResult, result);
-        
+
         instance.complete().toBlocking().single();
-        
+
         boolean expResult2 = false;
         boolean result2 = instance.isPartial();
-        
+
         assertEquals(expResult2, result2);
     }
 
@@ -219,8 +235,8 @@ public class StorageTest {
         Storage instance2 = Storage.list(project).toList().toBlocking().single().get(0);
         try {
             assertNull(instance2.getStaticUrl());
-        }catch(Exception ex){
-            if(!(ex instanceof PartialObjectException)){
+        } catch (Exception ex) {
+            if (!(ex instanceof PartialObjectException)) {
                 fail("Should have thrown PartialObjectException");
             }
         }
@@ -235,9 +251,8 @@ public class StorageTest {
     @Test
     public void testCreateAndDelete() {
         System.out.println("create and delete");
-        
+
         // tested while setup and teardown
-        
     }
 
     /**
@@ -252,8 +267,6 @@ public class StorageTest {
         Storage result = instance.cors(_cors).toBlocking().single();
         assertNotNull(result);
 
-        
-        
     }
 
     /**

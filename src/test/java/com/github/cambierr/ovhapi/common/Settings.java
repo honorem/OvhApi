@@ -11,15 +11,15 @@ package com.github.cambierr.ovhapi.common;
  */
 public class Settings {
 
-    public static final String consumerKey = System.getProperty("ovh.ck");
-    public static final String applicationKey = System.getProperty("ovh.ak");
-    public static final String applicationSecret = System.getProperty("ovh.as");
+    public static final String consumerKey = System.getenv("ovh.ck");
+    public static final String applicationKey = System.getenv("ovh.ak");
+    public static final String applicationSecret = System.getenv("ovh.as");
 
-    public static final String dateString = System.getProperty("epoch.string"); //replace with your GMT
+    public static final String dateString = System.getenv("epoch.string"); //replace with your GMT
     public static final Long dateLong = 0L;
 
-    public static final String projectId = System.getProperty("ovh.project"); //replace with your project test id
-    public static final String defaultSnapshotId = System.getProperty("ovh.snapshot"); //replace with an existing snapshot in the project
+    public static final String projectId = System.getenv("ovh.project"); //replace with your project test id
+    public static final String defaultSnapshotId = System.getenv("ovh.snapshot"); //replace with an existing snapshot in the project
 
     /**
      * Internal test settings
@@ -46,7 +46,7 @@ public class Settings {
 
     public static final String defaultImageId = "3bda2a66-5c24-4b1d-b850-83333b580674";
 
-    public static final String publicKey = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC4mpXtv+yNbpxBTYkVv79d6ukNr3kYtuAQmYaONkgj6EQbNwNcee5j0hhjVZNCn7lav3wSsBU3nHhlLZyULPsV6WDp1cAayklBBSuoLnftAZJT+pIEUM8QFE0BFXDns+QSkFvXHsZGk7GUpQKVNvzWTpltaj9AksVL6yFH+RC7SfRXbQeQyN9EeIFCLHYUNKyPua7AQz2GCWT0VQeTQcMIBRMqqwn8w9dCnlOb6cs88xPjQQGtHMNukly8ryhSANiBx+kYI2+YT0bOINQ+5yQtHd2udVJQKdHCMOkznEuogTQXwAJea4fLIzAaXhJV/rI2wMsEbT4k9agVSImTzlLS2FZJObNRsanWPhAoCgMDz+ro/AFOYXX+V/lp4pwHNJDhU3as0QXBTOoJDJ7dguN7xlYazIuG1rOhLC6Wvj7P2fOyshpEVO0d1naeIIumLCf/6ewaFFypvFESxs55pFzVrnv1iCWCjm+NjdTVnTzd9MAqeeLz9I1VWvxJTIeoSFqkgkBOOKLS7C1c3i2DNmVO6/2GQv02mkc7R8BfHRwhzsSdXpEHdZQT3u8y8Cd9P6DM2Z5/D+Ma67T0TrJu7v4uYOwzQ8B6FZNdFbCh9wOpUosH52IlJfTgLcnxGzY/mTmj11tKKYIXP88KqiJrDy8Bez4QiN4SyUroQyYIxj6qFw== honorem@honorem-laptop";
+    public static final String publicKey = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC4mpXtv+yNbpxBTYkVv79d6ukNr3kYtuAQmYaONkgj6EQbNwNcee5j0hhjVZNCn7lav3wSsBU3nHhlLZyULPsV6WDp1cAayklBBSuoLnftAZJT+pIEUM8QFE0BFXDns+QSkFvXHsZGk7GUpQKVNvzWTpltaj9AksVL6yFH+RC7SfRXbQeQyN9EeIFCLHYUNKyPua7AQz2GCWT0VQeTQcMIBRMqqwn8w9dCnlOb6cs88xPjQQGtHMNukly8ryhSANiBx+kYI2+YT0bOINQ+5yQtHd2udVJQKdHCMOkznEuogTQXwAJea4fLIzAaXhJV/rI2wMsEbT4k9agVSImTzlLS2FZJObNRsanWPhAoCgMDz+ro/AFOYXX+V/lp4pwHNJDhU3as0QXBTOoJDJ7dguN7xlYazIuG1rOhLC6Wvj7P2fOyshpEVO0d1naeIIumLCf/6ewaFFypvFESxs55pFzVrnv1iCWCjm+NjdTVnTzd9MAqeeLz9I1VWvxJTIeoSFqkgkBOOKLS7C1c3i2DNmVO6/2GQv02mkc7R8BfHRwhzsSdXpEHdZQT3u8y8Cd9P6DM2Z5/D+Ma67T0TrJu7v4uYOwzQ8B6FZNdFbCh9wOpUosH52IlJfTgLcnxGzY/mTmj11tKKYIXP88KqiJrDy8Bez4QiN4SyUroQyYIxj6qFw==";
 
     public static String defaultStorageId = ""; //this will be set during test
     public static final String defaultStorageRegion = "GRA1";

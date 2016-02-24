@@ -83,13 +83,14 @@ Credential.build("applicationKey", "applicationSecret", "consumerKey")
 
 ##Running the tests:
 ```shell
-mvn test \
--Dovh.ck=your-consumer-key \
--Dovh.ak=your-application-key \
--Dovh.as=your-application-secret \
--Depoch.string=epoch, with your locale. ex: 1970-01-01T00:00:00Z \
--Dovh.project=project-id-to-run-tests-on \
--Dovh.snapshot=already-existing-snapshot-or-image-id
+export ovhCk=your-consumer-key
+export ovhAk=your-application-key
+export ovhAs=your-application-secret
+export epochString=epoch, with your locale. ex: 1970-01-01T00:00:00Z
+export ovhProject=project-id-to-run-tests-on
+export ovhSnapshot=already-existing-snapshot-or-image-id
+mvn test
+
 ```
 
 ##Maven
@@ -97,6 +98,6 @@ mvn test \
 <dependency>
   <groupId>com.github.cambierr</groupId>
   <artifactId>ovhapi</artifactId>
-  <version>1.0</version>
+  <version>1.1</version>
 </dependency>
 ```

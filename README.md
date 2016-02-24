@@ -1,4 +1,6 @@
 # OvhApi
+![Build Status](https://travis-ci.org/cambierr/OvhApi.svg?branch=master)
+
 RxJava Ovh Api wrapper... soon
 
 ##Requesting credentials

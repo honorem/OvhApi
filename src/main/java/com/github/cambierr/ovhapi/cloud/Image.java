@@ -41,17 +41,17 @@ import rx.Subscriber;
  */
 public class Image {
 
-    private String visibility;
-    private long creationDate;
-    private String status;
-    private final Region region;
-    private String name;
-    private String type;
-    private final String id;
-    private int minDisk;
+    protected String visibility;
+    protected long creationDate;
+    protected String status;
+    protected final Region region;
+    protected String name;
+    protected String type;
+    protected final String id;
+    protected int minDisk;
 
-    private boolean partial = false;
-    private final Project project;
+    protected boolean partial = false;
+    protected final Project project;
 
     protected Image(Project _project, String _id, String _visibility, long _creationDate, String _status, Region _region, String _name, String _type, int _minDisk) {
         visibility = _visibility;
@@ -85,7 +85,7 @@ public class Image {
      *
      * @return the Observable completed Image object
      */
-    public Observable<Image> complete() {
+    public Observable<? extends Image> complete() {
         if (!partial) {
             return Observable.just(this);
         }
@@ -172,7 +172,7 @@ public class Image {
      *
      * @return an observable Image object
      */
-    public static Observable<Image> byId(Project _project, String _id) {
+    public static Observable<? extends Image> byId(Project _project, String _id) {
         return new RequestBuilder("/cloud/project/" + _project.getId() + "/image/" + _id, Method.GET, _project.getCredentials())
                 .build()
                 .flatMap((SafeResponse t1) -> {

@@ -39,30 +39,10 @@ import rx.Subscriber;
  *
  * @author cambierr
  */
-public class Snapshot {
-
-    private String visibility;
-    private long creationDate;
-    private String status;
-    private final Region region;
-    private String name;
-    private String type;
-    private final String id;
-    private int minDisk;
-
-    private boolean partial = false;
-    private final Project project;
+public class Snapshot extends Image {
 
     private Snapshot(Project _project, String _id, String _visibility, long _creationDate, String _status, Region _region, String _name, String _type, int _minDisk) {
-        visibility = _visibility;
-        creationDate = _creationDate;
-        status = _status;
-        region = _region;
-        name = _name;
-        type = _type;
-        id = _id;
-        minDisk = _minDisk;
-        project = _project;
+        super(_project, _id, _visibility, _creationDate, _status, _region, _name, _type, _minDisk);
     }
 
     /**
@@ -85,6 +65,7 @@ public class Snapshot {
      *
      * @return the Observable completed Snapshot object
      */
+    @Override
     public Observable<Snapshot> complete() {
         if (!partial) {
             return Observable.just(this);
@@ -108,6 +89,7 @@ public class Snapshot {
      *
      * @return true if partially loaded, or false
      */
+    @Override
     public boolean isPartial() {
         return partial;
     }
@@ -202,6 +184,7 @@ public class Snapshot {
      *
      * @throws PartialObjectException if this object is partially loaded
      */
+    @Override
     public String getVisibility() {
         if (partial) {
             throw new PartialObjectException();
@@ -216,6 +199,7 @@ public class Snapshot {
      *
      * @throws PartialObjectException if this object is partially loaded
      */
+    @Override
     public long getCreationDate() {
         if (partial) {
             throw new PartialObjectException();
@@ -230,6 +214,7 @@ public class Snapshot {
      *
      * @throws PartialObjectException if this object is partially loaded
      */
+    @Override
     public String getStatus() {
         if (partial) {
             throw new PartialObjectException();
@@ -242,6 +227,7 @@ public class Snapshot {
      *
      * @return the region of this snapshot
      */
+    @Override
     public Region getRegion() {
         return region;
     }
@@ -253,6 +239,7 @@ public class Snapshot {
      *
      * @throws PartialObjectException if this object is partially loaded
      */
+    @Override
     public String getName() {
         if (partial) {
             throw new PartialObjectException();
@@ -267,6 +254,7 @@ public class Snapshot {
      *
      * @throws PartialObjectException if this object is partially loaded
      */
+    @Override
     public String getType() {
         if (partial) {
             throw new PartialObjectException();
@@ -279,6 +267,7 @@ public class Snapshot {
      *
      * @return the id of this snapshot
      */
+    @Override
     public String getId() {
         return id;
     }
@@ -290,6 +279,7 @@ public class Snapshot {
      *
      * @throws PartialObjectException if this object is partially loaded
      */
+    @Override
     public int getMinDisk() {
         if (partial) {
             throw new PartialObjectException();

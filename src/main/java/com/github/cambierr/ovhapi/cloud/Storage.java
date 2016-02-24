@@ -91,9 +91,7 @@ public class Storage {
                     .range(0, containers.length())
                     .map((Integer t2) -> {
                         JSONObject container = containers.getJSONObject(t2);
-                        Storage temp = new Storage(_project, container.getString("id"), container.getString("name"), Region.byName(_project, container.getString("region")), container.getLong("storedBytes"), container.getLong("storedObjects"), null, false);
-                        temp.partial = true;
-                        return temp;
+                        return new Storage(_project, container.getString("id"), container.getString("name"), Region.byName(_project, container.getString("region")), container.getLong("storedBytes"), container.getLong("storedObjects"));
                     });
                 });
     }

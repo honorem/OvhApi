@@ -11,15 +11,15 @@ package com.github.cambierr.ovhapi.common;
  */
 public class Settings {
 
-    public static final String consumerKey = System.getenv("ovh.ck");
-    public static final String applicationKey = System.getenv("ovh.ak");
-    public static final String applicationSecret = System.getenv("ovh.as");
+    public static final String consumerKey = System.getenv("ovhCk");
+    public static final String applicationKey = System.getenv("ovhAk");
+    public static final String applicationSecret = System.getenv("ovhAs");
 
-    public static final String dateString = System.getenv("epoch.string"); //replace with your GMT
+    public static final String dateString = System.getenv("epochString"); //replace with your GMT
     public static final Long dateLong = 0L;
 
-    public static final String projectId = System.getenv("ovh.project"); //replace with your project test id
-    public static final String defaultSnapshotId = System.getenv("ovh.snapshot"); //replace with an existing snapshot in the project
+    public static final String projectId = System.getenv("ovhProject"); //replace with your project test id
+    public static final String defaultSnapshotId = System.getenv("ovhSnapshot"); //replace with an existing snapshot in the project
 
     /**
      * Internal test settings

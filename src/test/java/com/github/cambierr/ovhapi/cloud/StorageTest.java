@@ -180,21 +180,18 @@ public class StorageTest {
     public void testIsPartial() {
         System.out.println("isPartial");
         Storage instance = storage;
+
         boolean expResult = true;
-        boolean result = instance.isPartial();
+        boolean result = Storage.list(project).toList().toBlocking().single().get(0).isPartial();
+
         assertEquals(expResult, result);
-
-        boolean expResult2 = true;
-        boolean result2 = Storage.list(project).toList().toBlocking().single().get(0).isPartial();
-
-        assertEquals(expResult2, result2);
         
         instance.complete().toBlocking().single();
         
-        boolean expResult3 = false;
-        boolean result3 = instance.isPartial();
+        boolean expResult2 = false;
+        boolean result2 = instance.isPartial();
         
-        assertEquals(expResult3, result3);
+        assertEquals(expResult2, result2);
     }
 
     /**

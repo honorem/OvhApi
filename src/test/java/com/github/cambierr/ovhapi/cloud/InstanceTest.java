@@ -341,4 +341,15 @@ public class InstanceTest {
         //if create succeed, don't need it
     }
 
+    /**
+     * Test of getIpAddresses method, of class Instance.
+     */
+    @Test
+    public void testGetIpAddresses() {
+        System.out.println("getIpAddresses");
+        Instance instance = iInstance;
+        List<String> result = instance.getIpAddresses();
+        assertNotNull(result);
+    }
+
 }

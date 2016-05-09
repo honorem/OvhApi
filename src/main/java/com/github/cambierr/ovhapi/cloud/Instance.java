@@ -90,8 +90,10 @@ public class Instance {
                                 JSONObject instance = instances.getJSONObject(t2);
                                 try {
                                     List<IpAddress> ipAddresses = new ArrayList<>();
-                                    for (int i = 0; i < instance.getJSONArray("ipAddresses").length(); i++) {
-                                        ipAddresses.add(new IpAddress(instance.getJSONArray("ipAddresses").getJSONObject(i).getString("ip"), Type.getType(instance.getJSONArray("ipAddresses").getJSONObject(i).getString("type"))));
+                                    if (instance.has("ipAddresses") && !instance.get("ipAddresses").equals(JSONObject.NULL)) {
+                                        for (int i = 0; i < instance.getJSONArray("ipAddresses").length(); i++) {
+                                            ipAddresses.add(new IpAddress(instance.getJSONArray("ipAddresses").getJSONObject(i).getString("ip"), Type.getType(instance.getJSONArray("ipAddresses").getJSONObject(i).getString("type"))));
+                                        }
                                     }
 
                                     return Observable.just(new Instance(_project, Status.valueOf(instance.getString("status")), Region.byName(_project, instance.getString("region")), instance.getString("name"), Image.byId(_project, instance.getString("imageId"), Region.byName(_project, instance.getString("region"))), OvhApi.dateToTime(instance.getString("created")), Flavor.byId(_project, instance.getString("flavorId"), Region.byName(_project, instance.getString("region"))), instance.get("sshKeyId") == JSONObject.NULL ? null : SshKey.byIdPartial(_project, instance.getString("sshKeyId")), instance.getString("id"), ipAddresses));
@@ -124,8 +126,10 @@ public class Instance {
                         JSONObject jsonSshKey = instance.get("sshKey") == JSONObject.NULL ? null : instance.getJSONObject("sshKey");
 
                         List<IpAddress> ipAddresses = new ArrayList<>();
-                        for (int i = 0; i < instance.getJSONArray("ipAddresses").length(); i++) {
-                            ipAddresses.add(new IpAddress(instance.getJSONArray("ipAddresses").getJSONObject(i).getString("ip"), Type.getType(instance.getJSONArray("ipAddresses").getJSONObject(i).getString("type"))));
+                        if (instance.has("ipAddresses") && !instance.get("ipAddresses").equals(JSONObject.NULL)) {
+                            for (int i = 0; i < instance.getJSONArray("ipAddresses").length(); i++) {
+                                ipAddresses.add(new IpAddress(instance.getJSONArray("ipAddresses").getJSONObject(i).getString("ip"), Type.getType(instance.getJSONArray("ipAddresses").getJSONObject(i).getString("type"))));
+                            }
                         }
 
                         return Observable.just(new Instance(
@@ -216,7 +220,7 @@ public class Instance {
     public String getId() {
         return id;
     }
-    
+
     /**
      * Returns the list of IP addresses of this instance
      *
@@ -311,8 +315,10 @@ public class Instance {
                         JSONObject jsonSshKey = instance.get("sshKey") == JSONObject.NULL ? null : instance.getJSONObject("sshKey");
 
                         List<IpAddress> ipAddresses = new ArrayList<>();
-                        for (int i = 0; i < instance.getJSONArray("ipAddresses").length(); i++) {
-                            ipAddresses.add(new IpAddress(instance.getJSONArray("ipAddresses").getJSONObject(i).getString("ip"), Type.getType(instance.getJSONArray("ipAddresses").getJSONObject(i).getString("type"))));
+                        if (instance.has("ipAddresses") && !instance.get("ipAddresses").equals(JSONObject.NULL)) {
+                            for (int i = 0; i < instance.getJSONArray("ipAddresses").length(); i++) {
+                                ipAddresses.add(new IpAddress(instance.getJSONArray("ipAddresses").getJSONObject(i).getString("ip"), Type.getType(instance.getJSONArray("ipAddresses").getJSONObject(i).getString("type"))));
+                            }
                         }
 
                         return Observable.just(new Instance(
@@ -366,8 +372,10 @@ public class Instance {
                             .flatMap((Integer t) -> {
                                 try {
                                     List<IpAddress> ipAddresses = new ArrayList<>();
-                                    for (int i = 0; i < instances.getJSONObject(t).getJSONArray("ipAddresses").length(); i++) {
-                                        ipAddresses.add(new IpAddress(instances.getJSONObject(t).getJSONArray("ipAddresses").getJSONObject(i).getString("ip"), Type.getType(instances.getJSONObject(t).getJSONArray("ipAddresses").getJSONObject(i).getString("type"))));
+                                    if (instances.getJSONObject(t).has("ipAddresses") && !instances.getJSONObject(t).get("ipAddresses").equals(JSONObject.NULL)) {
+                                        for (int i = 0; i < instances.getJSONObject(t).getJSONArray("ipAddresses").length(); i++) {
+                                            ipAddresses.add(new IpAddress(instances.getJSONObject(t).getJSONArray("ipAddresses").getJSONObject(i).getString("ip"), Type.getType(instances.getJSONObject(t).getJSONArray("ipAddresses").getJSONObject(i).getString("type"))));
+                                        }
                                     }
 
                                     return Observable.just(new Instance(_project, Status.valueOf(instances.getJSONObject(t).getString("status")), Region.byName(_project, instances.getJSONObject(t).getString("region")), instances.getJSONObject(t).getString("name"), Image.byId(_project, instances.getJSONObject(t).getString("imageId"), Region.byName(_project, instances.getJSONObject(t).getString("region"))), OvhApi.dateToTime(instances.getJSONObject(t).getString("created")), Flavor.byId(_project, instances.getJSONObject(t).getString("flavorId"), Region.byName(_project, instances.getJSONObject(t).getString("region"))), SshKey.byIdPartial(_project, instances.getJSONObject(t).getString("sshKeyId")), instances.getJSONObject(t).getString("id"), ipAddresses));
@@ -375,7 +383,8 @@ public class Instance {
                                     return Observable.error(ex);
                                 }
                             });
-                });
+                }
+                );
     }
 
     /**

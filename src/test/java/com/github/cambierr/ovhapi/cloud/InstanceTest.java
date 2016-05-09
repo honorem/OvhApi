@@ -348,7 +348,7 @@ public class InstanceTest {
     public void testGetIpAddresses() {
         System.out.println("getIpAddresses");
         Instance instance = iInstance;
-        List<String> result = instance.getIpAddresses();
+        List<IpAddress> result = instance.getIpAddresses();
         assertNotNull(result);
     }
 

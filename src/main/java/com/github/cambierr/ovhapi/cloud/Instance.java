@@ -23,6 +23,7 @@
  */
 package com.github.cambierr.ovhapi.cloud;
 
+import com.github.cambierr.ovhapi.cloud.IpAddress.Type;
 import com.github.cambierr.ovhapi.common.Method;
 import com.github.cambierr.ovhapi.common.OvhApi;
 import com.github.cambierr.ovhapi.common.RequestBuilder;
@@ -50,11 +51,11 @@ public class Instance {
     private Flavor flavor;
     private final SshKey sshKey;
     private final String id;
-    private final List<String> ipAddresses;
+    private final List<IpAddress> ipAddresses;
 
     private final Project project;
 
-    private Instance(Project _project, Status _status, Region _region, String _name, Image _image, long _creationDate, Flavor _flavor, SshKey _sshKey, String _id, List<String> _ipAddresses) {
+    private Instance(Project _project, Status _status, Region _region, String _name, Image _image, long _creationDate, Flavor _flavor, SshKey _sshKey, String _id, List<IpAddress> _ipAddresses) {
         project = _project;
         status = _status;
         region = _region;
@@ -87,9 +88,9 @@ public class Instance {
                             .flatMap((Integer t2) -> {
                                 JSONObject instance = instances.getJSONObject(t2);
                                 try {
-                                    List<String> ipAddresses = new ArrayList<>();
+                                    List<IpAddress> ipAddresses = new ArrayList<>();
                                     for (int i = 0; i < instance.getJSONArray("ipAddresses").length(); i++) {
-                                        ipAddresses.add(instance.getJSONArray("ipAddresses").getJSONObject(i).getString("ip"));
+                                        ipAddresses.add(new IpAddress(instance.getJSONArray("ipAddresses").getJSONObject(i).getString("ip"), Type.getType(instance.getJSONArray("ipAddresses").getJSONObject(i).getString("type"))));
                                     }
 
                                     return Observable.just(new Instance(_project, Status.valueOf(instance.getString("status")), Region.byName(_project, instance.getString("region")), instance.getString("name"), Image.byId(_project, instance.getString("imageId"), Region.byName(_project, instance.getString("region"))), OvhApi.dateToTime(instance.getString("created")), Flavor.byId(_project, instance.getString("flavorId"), Region.byName(_project, instance.getString("region"))), instance.get("sshKeyId") == JSONObject.NULL ? null : SshKey.byIdPartial(_project, instance.getString("sshKeyId")), instance.getString("id"), ipAddresses));
@@ -121,9 +122,9 @@ public class Instance {
                         JSONObject jsonFlavor = instance.getJSONObject("flavor");
                         JSONObject jsonSshKey = instance.get("sshKey") == JSONObject.NULL ? null : instance.getJSONObject("sshKey");
 
-                        List<String> ipAddresses = new ArrayList<>();
+                        List<IpAddress> ipAddresses = new ArrayList<>();
                         for (int i = 0; i < instance.getJSONArray("ipAddresses").length(); i++) {
-                            ipAddresses.add(instance.getJSONArray("ipAddresses").getJSONObject(i).getString("ip"));
+                            ipAddresses.add(new IpAddress(instance.getJSONArray("ipAddresses").getJSONObject(i).getString("ip"), Type.getType(instance.getJSONArray("ipAddresses").getJSONObject(i).getString("type"))));
                         }
 
                         return Observable.just(new Instance(
@@ -220,7 +221,7 @@ public class Instance {
      *
      * @return the list of IP addresses of this instance
      */
-    public List<String> getIpAddresses() {
+    public List<IpAddress> getIpAddresses() {
         return ipAddresses;
     }
 
@@ -308,9 +309,9 @@ public class Instance {
                         JSONObject jsonFlavor = instance.getJSONObject("flavor");
                         JSONObject jsonSshKey = instance.get("sshKey") == JSONObject.NULL ? null : instance.getJSONObject("sshKey");
 
-                        List<String> ipAddresses = new ArrayList<>();
+                        List<IpAddress> ipAddresses = new ArrayList<>();
                         for (int i = 0; i < instance.getJSONArray("ipAddresses").length(); i++) {
-                            ipAddresses.add(instance.getJSONArray("ipAddresses").getJSONObject(i).getString("ip"));
+                            ipAddresses.add(new IpAddress(instance.getJSONArray("ipAddresses").getJSONObject(i).getString("ip"), Type.getType(instance.getJSONArray("ipAddresses").getJSONObject(i).getString("type"))));
                         }
 
                         return Observable.just(new Instance(
@@ -363,9 +364,9 @@ public class Instance {
                     return Observable.range(0, instances.length())
                             .flatMap((Integer t) -> {
                                 try {
-                                    List<String> ipAddresses = new ArrayList<>();
+                                    List<IpAddress> ipAddresses = new ArrayList<>();
                                     for (int i = 0; i < instances.getJSONObject(t).getJSONArray("ipAddresses").length(); i++) {
-                                        ipAddresses.add(instances.getJSONObject(t).getJSONArray("ipAddresses").getJSONObject(i).getString("ip"));
+                                        ipAddresses.add(new IpAddress(instances.getJSONObject(t).getJSONArray("ipAddresses").getJSONObject(i).getString("ip"), Type.getType(instances.getJSONObject(t).getJSONArray("ipAddresses").getJSONObject(i).getString("type"))));
                                     }
 
                                     return Observable.just(new Instance(_project, Status.valueOf(instances.getJSONObject(t).getString("status")), Region.byName(_project, instances.getJSONObject(t).getString("region")), instances.getJSONObject(t).getString("name"), Image.byId(_project, instances.getJSONObject(t).getString("imageId"), Region.byName(_project, instances.getJSONObject(t).getString("region"))), OvhApi.dateToTime(instances.getJSONObject(t).getString("created")), Flavor.byId(_project, instances.getJSONObject(t).getString("flavorId"), Region.byName(_project, instances.getJSONObject(t).getString("region"))), SshKey.byIdPartial(_project, instances.getJSONObject(t).getString("sshKeyId")), instances.getJSONObject(t).getString("id"), ipAddresses));

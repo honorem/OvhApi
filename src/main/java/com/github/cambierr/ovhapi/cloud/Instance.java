@@ -29,6 +29,7 @@ import com.github.cambierr.ovhapi.common.OvhApi;
 import com.github.cambierr.ovhapi.common.RequestBuilder;
 import com.github.cambierr.ovhapi.common.SafeResponse;
 import com.github.cambierr.ovhapi.exception.RequestException;
+import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -94,7 +95,7 @@ public class Instance {
                                     }
 
                                     return Observable.just(new Instance(_project, Status.valueOf(instance.getString("status")), Region.byName(_project, instance.getString("region")), instance.getString("name"), Image.byId(_project, instance.getString("imageId"), Region.byName(_project, instance.getString("region"))), OvhApi.dateToTime(instance.getString("created")), Flavor.byId(_project, instance.getString("flavorId"), Region.byName(_project, instance.getString("region"))), instance.get("sshKeyId") == JSONObject.NULL ? null : SshKey.byIdPartial(_project, instance.getString("sshKeyId")), instance.getString("id"), ipAddresses));
-                                } catch (JSONException | ParseException ex) {
+                                } catch (JSONException | ParseException | UnknownHostException ex) {
                                     return Observable.error(ex);
                                 }
                             });
@@ -138,7 +139,7 @@ public class Instance {
                                 jsonSshKey == null ? null : new SshKey(_project, jsonSshKey.getString("id"), Region.byName(_project, jsonSshKey.getJSONArray("regions").getString(0)), jsonSshKey.getString("name"), jsonSshKey.getString("publicKey"), jsonSshKey.getString("fingerPrint")),
                                 instance.getString("id"),
                                 ipAddresses));
-                    } catch (ParseException ex) {
+                    } catch (ParseException | UnknownHostException ex) {
                         return Observable.error(ex);
                     }
                 });
@@ -325,7 +326,7 @@ public class Instance {
                                 jsonSshKey == null ? null : new SshKey(_project, jsonSshKey.getString("id"), Region.byName(_project, jsonSshKey.getJSONArray("regions").getString(0)), jsonSshKey.getString("name"), jsonSshKey.getString("publicKey"), jsonSshKey.getString("fingerPrint")),
                                 instance.getString("id"),
                                 ipAddresses));
-                    } catch (ParseException ex) {
+                    } catch (ParseException | UnknownHostException ex) {
                         return Observable.error(ex);
                     }
                 });
@@ -370,7 +371,7 @@ public class Instance {
                                     }
 
                                     return Observable.just(new Instance(_project, Status.valueOf(instances.getJSONObject(t).getString("status")), Region.byName(_project, instances.getJSONObject(t).getString("region")), instances.getJSONObject(t).getString("name"), Image.byId(_project, instances.getJSONObject(t).getString("imageId"), Region.byName(_project, instances.getJSONObject(t).getString("region"))), OvhApi.dateToTime(instances.getJSONObject(t).getString("created")), Flavor.byId(_project, instances.getJSONObject(t).getString("flavorId"), Region.byName(_project, instances.getJSONObject(t).getString("region"))), SshKey.byIdPartial(_project, instances.getJSONObject(t).getString("sshKeyId")), instances.getJSONObject(t).getString("id"), ipAddresses));
-                                } catch (ParseException ex) {
+                                } catch (ParseException | UnknownHostException ex) {
                                     return Observable.error(ex);
                                 }
                             });

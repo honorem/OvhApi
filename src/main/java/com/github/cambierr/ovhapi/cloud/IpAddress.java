@@ -5,21 +5,29 @@
  */
 package com.github.cambierr.ovhapi.cloud;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 /**
  *
  * @author honorem
  */
 public class IpAddress {
 
-    String ip;
+    InetAddress ip;
     Type type;
 
-    public IpAddress(String _ip, Type _type) {
+    public IpAddress(InetAddress _ip, Type _type) {
         ip = _ip;
         type = _type;
     }
+    public IpAddress(String _ip, Type _type) throws UnknownHostException {
+        ip = InetAddress.getByName(_ip);
+        type = _type;
+    }
+    
 
-    public String getIp() {
+    public InetAddress getIp() {
         return ip;
     }
 
